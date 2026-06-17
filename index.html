@@ -1,0 +1,1982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EduSync — Smart Classroom & Timetable Scheduler</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.2.0/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  :root {
+    --brand-blue: #1565C0;
+    --brand-blue-light: #1976D2;
+    --brand-blue-dark: #0D47A1;
+    --brand-accent: #00ACC1;
+    --brand-accent-soft: #E0F7FA;
+    --sidebar-w: 260px;
+    --sidebar-bg: #0D1B3E;
+    --sidebar-text: rgba(255,255,255,0.7);
+    --sidebar-active-bg: rgba(255,255,255,0.1);
+    --topbar-h: 64px;
+    --card-radius: 14px;
+    --shadow-soft: 0 2px 16px rgba(21,101,192,0.08);
+    --shadow-card: 0 4px 24px rgba(21,101,192,0.10);
+    --bg-page: #F0F4FF;
+    --bg-card: #fff;
+    --text-main: #1A2340;
+    --text-muted: #6B7A99;
+    --border: #E3EAF6;
+    --success: #00897B;
+    --warning: #F57F17;
+    --danger: #C62828;
+    --info: #0277BD;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg-page); color: var(--text-main); font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+
+  /* ── LANDING PAGE ── */
+  #page-landing { display: block; }
+  .landing-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 999; padding: 0 48px; height: 68px; display: flex; align-items: center; justify-content: space-between; background: rgba(13,27,62,0.96); backdrop-filter: blur(12px); }
+  .landing-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .landing-logo .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #1976D2, #00ACC1); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .landing-logo .logo-icon i { color: #fff; font-size: 20px; }
+  .landing-logo span { font-size: 20px; font-weight: 700; color: #fff; letter-spacing: -0.3px; }
+  .landing-logo span em { font-style: normal; color: #00ACC1; }
+  .landing-nav-links { display: flex; align-items: center; gap: 32px; }
+  .landing-nav-links a { color: rgba(255,255,255,0.75); text-decoration: none; font-size: 14px; transition: color .2s; }
+  .landing-nav-links a:hover { color: #fff; }
+  .btn-landing-cta { background: linear-gradient(135deg, #1976D2, #00ACC1); color: #fff; border: none; padding: 10px 24px; border-radius: 8px; font-weight: 600; font-size: 14px; cursor: pointer; transition: opacity .2s; }
+  .btn-landing-cta:hover { opacity: 0.9; }
+
+  .landing-hero { min-height: 100vh; background: linear-gradient(135deg, #0D1B3E 0%, #1565C0 50%, #006064 100%); display: flex; align-items: center; padding: 100px 48px 60px; position: relative; overflow: hidden; }
+  .landing-hero::before { content: ''; position: absolute; top: -100px; right: -100px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0,172,193,0.15) 0%, transparent 70%); pointer-events: none; }
+  .landing-hero::after { content: ''; position: absolute; bottom: -80px; left: 10%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(25,118,210,0.2) 0%, transparent 70%); pointer-events: none; }
+  .hero-content { max-width: 600px; position: relative; z-index: 2; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(0,172,193,0.2); border: 1px solid rgba(0,172,193,0.4); color: #00E5FF; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 24px; }
+  .hero-title { font-size: clamp(32px, 5vw, 56px); font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -1px; margin-bottom: 20px; }
+  .hero-title em { font-style: normal; background: linear-gradient(90deg, #00ACC1, #40C4FF); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .hero-subtitle { font-size: 18px; color: rgba(255,255,255,0.7); line-height: 1.7; margin-bottom: 36px; max-width: 520px; }
+  .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .btn-hero-primary { background: linear-gradient(135deg, #1976D2, #00ACC1); color: #fff; border: none; padding: 14px 32px; border-radius: 10px; font-weight: 700; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: transform .2s, box-shadow .2s; box-shadow: 0 8px 32px rgba(0,172,193,0.3); }
+  .btn-hero-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(0,172,193,0.4); }
+  .btn-hero-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.25); padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 15px; cursor: pointer; transition: background .2s; }
+  .btn-hero-secondary:hover { background: rgba(255,255,255,0.18); }
+  .hero-stats { display: flex; gap: 36px; margin-top: 48px; flex-wrap: wrap; }
+  .hero-stat { text-align: center; }
+  .hero-stat .num { font-size: 28px; font-weight: 800; color: #fff; }
+  .hero-stat .lbl { font-size: 12px; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+  .hero-visual { flex: 1; display: flex; justify-content: center; align-items: center; position: relative; z-index: 2; }
+  .dashboard-preview { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-radius: 20px; padding: 20px; width: 420px; backdrop-filter: blur(20px); }
+  .dp-header { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .dp-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dp-title { color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 600; margin-left: 8px; }
+  .dp-mini-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .dp-mini-card { background: rgba(255,255,255,0.08); border-radius: 10px; padding: 12px; }
+  .dp-mini-card .val { font-size: 22px; font-weight: 700; color: #fff; }
+  .dp-mini-card .lbl { font-size: 10px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 0.5px; }
+  .dp-chart-area { background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; height: 100px; display: flex; align-items: flex-end; gap: 6px; }
+  .dp-bar { flex: 1; background: linear-gradient(180deg, #00ACC1, #1976D2); border-radius: 4px 4px 0 0; opacity: 0.8; }
+  .dp-timetable { margin-top: 12px; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 10px; }
+  .dp-tt-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .dp-tt-row:last-child { border-bottom: none; }
+  .dp-tt-time { font-size: 10px; color: rgba(255,255,255,0.45); width: 42px; flex-shrink: 0; }
+  .dp-tt-slot { flex: 1; background: rgba(25,118,210,0.3); border-radius: 4px; padding: 4px 8px; font-size: 10px; color: rgba(255,255,255,0.8); }
+  .dp-tt-room { font-size: 10px; color: rgba(255,255,255,0.4); width: 40px; text-align: right; }
+
+  .landing-features { padding: 90px 48px; background: #fff; }
+  .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--brand-accent); margin-bottom: 12px; }
+  .section-title { font-size: clamp(24px, 3vw, 40px); font-weight: 800; color: var(--text-main); line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 16px; }
+  .section-subtitle { font-size: 17px; color: var(--text-muted); max-width: 560px; line-height: 1.7; }
+  .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 56px; }
+  .feature-card { background: #F8FAFE; border: 1px solid var(--border); border-radius: var(--card-radius); padding: 28px; transition: transform .2s, box-shadow .2s; }
+  .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-card); }
+  .feature-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; }
+  .feature-card h3 { font-size: 16px; font-weight: 700; color: var(--text-main); margin-bottom: 8px; }
+  .feature-card p { font-size: 14px; color: var(--text-muted); line-height: 1.65; }
+
+  .landing-footer { background: var(--sidebar-bg); color: rgba(255,255,255,0.5); padding: 32px 48px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+
+  /* ── AUTH PAGES ── */
+  #page-login { display: none; min-height: 100vh; background: linear-gradient(135deg, #0D1B3E 0%, #1565C0 100%); align-items: center; justify-content: center; }
+  .auth-card { background: #fff; border-radius: 20px; padding: 48px 44px; width: 100%; max-width: 440px; box-shadow: 0 24px 80px rgba(0,0,0,0.3); }
+  .auth-logo { text-align: center; margin-bottom: 32px; }
+  .auth-logo .logo-icon { width: 56px; height: 56px; background: linear-gradient(135deg, #1976D2, #00ACC1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; }
+  .auth-logo .logo-icon i { color: #fff; font-size: 28px; }
+  .auth-logo h2 { font-size: 22px; font-weight: 800; color: var(--text-main); }
+  .auth-logo p { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+  .auth-form .form-label { font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+  .auth-form .form-control { height: 44px; border-radius: 10px; border: 1.5px solid var(--border); font-size: 14px; padding: 0 14px; transition: border-color .2s; }
+  .auth-form .form-control:focus { border-color: var(--brand-blue); box-shadow: 0 0 0 3px rgba(21,101,192,0.1); }
+  .btn-auth { width: 100%; height: 46px; background: linear-gradient(135deg, #1976D2, #00ACC1); border: none; border-radius: 10px; color: #fff; font-weight: 700; font-size: 15px; cursor: pointer; transition: opacity .2s; }
+  .btn-auth:hover { opacity: 0.9; }
+  .auth-demo { background: #F0F4FF; border-radius: 10px; padding: 14px 16px; margin-top: 20px; font-size: 13px; }
+  .auth-demo strong { color: var(--brand-blue); }
+
+  /* ── APP SHELL ── */
+  #page-app { display: none; min-height: 100vh; }
+
+  .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: var(--sidebar-w); background: var(--sidebar-bg); display: flex; flex-direction: column; z-index: 200; transition: width .3s ease; overflow: hidden; }
+  .sidebar-logo { display: flex; align-items: center; gap: 10px; padding: 20px 22px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; min-height: var(--topbar-h); }
+  .sidebar-logo .logo-icon { width: 34px; height: 34px; background: linear-gradient(135deg, #1976D2, #00ACC1); border-radius: 9px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sidebar-logo .logo-icon i { color: #fff; font-size: 18px; }
+  .sidebar-logo span { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: -0.2px; white-space: nowrap; }
+  .sidebar-logo span em { font-style: normal; color: #00ACC1; }
+  .sidebar-nav { flex: 1; overflow-y: auto; padding: 16px 0; }
+  .sidebar-nav::-webkit-scrollbar { width: 4px; }
+  .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+  .nav-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: rgba(255,255,255,0.3); padding: 16px 22px 6px; }
+  .nav-item { display: flex; align-items: center; gap: 12px; padding: 10px 22px; cursor: pointer; transition: background .15s, color .15s; color: var(--sidebar-text); text-decoration: none; border-left: 3px solid transparent; }
+  .nav-item:hover { background: var(--sidebar-active-bg); color: #fff; }
+  .nav-item.active { background: var(--sidebar-active-bg); color: #fff; border-left-color: #00ACC1; }
+  .nav-item i { font-size: 18px; flex-shrink: 0; width: 20px; text-align: center; }
+  .nav-item span { font-size: 13.5px; font-weight: 500; white-space: nowrap; }
+  .nav-item .badge { margin-left: auto; background: #C62828; color: #fff; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; }
+  .sidebar-footer { padding: 16px 22px; border-top: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+  .sidebar-user { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .sidebar-user .avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #1976D2, #00ACC1); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+  .sidebar-user .info { min-width: 0; }
+  .sidebar-user .info .name { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sidebar-user .info .role { font-size: 11px; color: rgba(255,255,255,0.4); }
+
+  .topbar { position: fixed; left: var(--sidebar-w); right: 0; top: 0; height: var(--topbar-h); background: #fff; border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 28px; gap: 16px; z-index: 100; transition: left .3s; }
+  .topbar-title { font-size: 16px; font-weight: 700; color: var(--text-main); flex: 0 0 auto; }
+  .topbar-search { flex: 1; max-width: 360px; position: relative; }
+  .topbar-search input { width: 100%; height: 38px; border: 1.5px solid var(--border); border-radius: 10px; padding: 0 14px 0 38px; font-size: 13.5px; background: var(--bg-page); color: var(--text-main); outline: none; transition: border-color .2s; }
+  .topbar-search input:focus { border-color: var(--brand-blue); background: #fff; }
+  .topbar-search i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 16px; }
+  .topbar-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .topbar-icon-btn { width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; transition: background .15s; }
+  .topbar-icon-btn:hover { background: var(--bg-page); }
+  .topbar-icon-btn i { font-size: 18px; color: var(--text-muted); }
+  .notif-dot { position: absolute; top: 7px; right: 7px; width: 7px; height: 7px; background: #C62828; border-radius: 50%; border: 2px solid #fff; }
+  .topbar-avatar { width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, #1976D2, #00ACC1); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; }
+
+  .main-content { margin-left: var(--sidebar-w); padding-top: var(--topbar-h); min-height: 100vh; background: var(--bg-page); transition: margin-left .3s; }
+  .page-content { padding: 28px; display: none; }
+  .page-content.active { display: block; }
+
+  /* ── DASHBOARD ── */
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .page-header h1 { font-size: 22px; font-weight: 800; color: var(--text-main); letter-spacing: -0.3px; }
+  .page-header p { font-size: 14px; color: var(--text-muted); margin-top: 2px; }
+  .btn-primary { background: linear-gradient(135deg, #1976D2, #00ACC1); color: #fff; border: none; padding: 10px 20px; border-radius: 9px; font-weight: 600; font-size: 13.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: opacity .2s; }
+  .btn-primary:hover { opacity: 0.9; }
+  .btn-secondary { background: #fff; color: var(--text-main); border: 1.5px solid var(--border); padding: 9px 18px; border-radius: 9px; font-weight: 600; font-size: 13.5px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: background .15s; }
+  .btn-secondary:hover { background: var(--bg-page); }
+  .btn-danger { background: #FFEBEE; color: var(--danger); border: 1.5px solid #FFCDD2; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 13px; cursor: pointer; transition: background .15s; }
+  .btn-danger:hover { background: #FFCDD2; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 7px; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 24px; }
+  .stat-card { background: var(--bg-card); border-radius: var(--card-radius); padding: 22px 24px; border: 1px solid var(--border); display: flex; align-items: flex-start; gap: 18px; box-shadow: var(--shadow-soft); transition: transform .2s, box-shadow .2s; }
+  .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); }
+  .stat-icon { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .stat-icon i { font-size: 24px; }
+  .stat-body .value { font-size: 28px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; line-height: 1; }
+  .stat-body .label { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .stat-body .change { font-size: 12px; font-weight: 600; margin-top: 6px; display: flex; align-items: center; gap: 3px; }
+  .change.up { color: var(--success); }
+  .change.down { color: var(--danger); }
+
+  .cards-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; margin-bottom: 24px; }
+  .card-box { background: var(--bg-card); border-radius: var(--card-radius); border: 1px solid var(--border); box-shadow: var(--shadow-soft); overflow: hidden; }
+  .card-box-header { padding: 18px 22px 14px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .card-box-header h3 { font-size: 15px; font-weight: 700; color: var(--text-main); }
+  .card-box-body { padding: 18px 22px; }
+
+  .activity-list { display: flex; flex-direction: column; gap: 14px; }
+  .activity-item { display: flex; align-items: flex-start; gap: 12px; }
+  .activity-icon { width: 34px; height: 34px; border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .activity-icon i { font-size: 16px; }
+  .activity-body .title { font-size: 13.5px; font-weight: 600; color: var(--text-main); }
+  .activity-body .meta { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+  .notif-list { display: flex; flex-direction: column; gap: 2px; }
+  .notif-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 10px; cursor: pointer; transition: background .15s; }
+  .notif-item:hover { background: var(--bg-page); }
+  .notif-item.unread { background: #EFF6FF; }
+  .notif-dot2 { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .notif-text { font-size: 13px; color: var(--text-main); flex: 1; }
+  .notif-text strong { font-weight: 600; }
+  .notif-time { font-size: 11px; color: var(--text-muted); }
+
+  /* ── TABLES ── */
+  .data-table-wrap { background: var(--bg-card); border-radius: var(--card-radius); border: 1px solid var(--border); box-shadow: var(--shadow-soft); overflow: hidden; }
+  .data-table-toolbar { padding: 16px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  .data-table-toolbar h3 { font-size: 15px; font-weight: 700; color: var(--text-main); }
+  .tbl-search { position: relative; flex: 1; max-width: 280px; }
+  .tbl-search input { width: 100%; height: 36px; border: 1.5px solid var(--border); border-radius: 8px; padding: 0 12px 0 34px; font-size: 13px; background: var(--bg-page); color: var(--text-main); outline: none; }
+  .tbl-search input:focus { border-color: var(--brand-blue); background: #fff; }
+  .tbl-search i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 15px; }
+  .tbl-filter { height: 36px; border: 1.5px solid var(--border); border-radius: 8px; padding: 0 10px; font-size: 13px; background: var(--bg-page); color: var(--text-main); cursor: pointer; outline: none; }
+  table.main-table { width: 100%; border-collapse: collapse; }
+  table.main-table th { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--text-muted); padding: 10px 18px; background: #F8FAFE; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  table.main-table td { padding: 12px 18px; border-bottom: 1px solid #F0F4FF; font-size: 13.5px; color: var(--text-main); vertical-align: middle; }
+  table.main-table tr:last-child td { border-bottom: none; }
+  table.main-table tr:hover td { background: #FAFBFF; }
+  .avatar-cell { display: flex; align-items: center; gap: 10px; }
+  .avatar-xs { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .avatar-name { font-weight: 600; }
+  .avatar-sub { font-size: 12px; color: var(--text-muted); }
+
+  .badge-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+  .badge-blue { background: #E3F2FD; color: #1565C0; }
+  .badge-green { background: #E8F5E9; color: #2E7D32; }
+  .badge-amber { background: #FFF8E1; color: #F57F17; }
+  .badge-red { background: #FFEBEE; color: #C62828; }
+  .badge-purple { background: #F3E5F5; color: #6A1B9A; }
+  .badge-teal { background: #E0F7FA; color: #006064; }
+  .badge-gray { background: #F5F5F5; color: #616161; }
+
+  .action-btns { display: flex; gap: 6px; align-items: center; }
+  .action-btn { width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--border); background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background .15s; }
+  .action-btn:hover { background: var(--bg-page); }
+  .action-btn i { font-size: 15px; color: var(--text-muted); }
+  .action-btn.edit i { color: var(--brand-blue); }
+  .action-btn.del i { color: var(--danger); }
+
+  /* ── TIMETABLE ── */
+  .tt-controls { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+  .tt-select { height: 38px; border: 1.5px solid var(--border); border-radius: 9px; padding: 0 14px; font-size: 13.5px; background: #fff; color: var(--text-main); cursor: pointer; outline: none; }
+  .tt-grid { background: var(--bg-card); border-radius: var(--card-radius); border: 1px solid var(--border); box-shadow: var(--shadow-soft); overflow: hidden; }
+  .tt-table { width: 100%; border-collapse: collapse; }
+  .tt-table th { padding: 10px 8px; font-size: 12px; font-weight: 700; text-align: center; color: var(--text-muted); background: #F8FAFE; border: 1px solid var(--border); white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
+  .tt-table td { padding: 6px; border: 1px solid var(--border); min-width: 110px; height: 72px; vertical-align: top; }
+  .tt-time { font-size: 11px; color: var(--text-muted); font-weight: 600; background: #F8FAFE; padding: 10px 12px; text-align: center; vertical-align: middle; white-space: nowrap; }
+  .tt-slot { border-radius: 8px; padding: 7px 8px; height: 100%; }
+  .tt-slot.empty { min-height: 56px; }
+  .tt-slot .subj { font-size: 11.5px; font-weight: 700; line-height: 1.3; }
+  .tt-slot .faculty { font-size: 10.5px; margin-top: 2px; opacity: 0.8; }
+  .tt-slot .room { font-size: 10px; opacity: 0.65; }
+  .tt-blue { background: #E3F2FD; color: #0D47A1; }
+  .tt-green { background: #E8F5E9; color: #1B5E20; }
+  .tt-purple { background: #F3E5F5; color: #4A148C; }
+  .tt-amber { background: #FFF8E1; color: #E65100; }
+  .tt-teal { background: #E0F7FA; color: #004D40; }
+  .tt-break { background: #F5F5F5; color: #757575; }
+  .break-cell { text-align: center; vertical-align: middle; font-size: 12px; font-weight: 600; color: #9E9E9E; background: #FAFAFA; }
+
+  /* ── ANALYTICS ── */
+  .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+  .chart-card { background: var(--bg-card); border-radius: var(--card-radius); border: 1px solid var(--border); box-shadow: var(--shadow-soft); padding: 22px; }
+  .chart-card h3 { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+  .chart-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; }
+
+  /* ── ATTENDANCE ── */
+  .att-class-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .att-class-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--card-radius); padding: 18px 20px; cursor: pointer; transition: transform .2s, box-shadow .2s; }
+  .att-class-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-card); }
+  .att-class-card.selected { border-color: var(--brand-blue); box-shadow: 0 0 0 3px rgba(21,101,192,0.1); }
+  .att-class-card h4 { font-size: 15px; font-weight: 700; color: var(--text-main); }
+  .att-class-card .meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .att-class-card .pct { font-size: 26px; font-weight: 800; margin-top: 12px; }
+  .att-bar { height: 5px; background: var(--border); border-radius: 3px; margin-top: 8px; overflow: hidden; }
+  .att-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #1976D2, #00ACC1); }
+
+  .att-student-table td input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--brand-blue); cursor: pointer; }
+  .att-status { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 20px; font-size: 11.5px; font-weight: 600; }
+  .att-present { background: #E8F5E9; color: #2E7D32; }
+  .att-absent { background: #FFEBEE; color: #C62828; }
+  .att-late { background: #FFF8E1; color: #F57F17; }
+
+  /* ── CONFLICT ALERTS ── */
+  .conflict-alert { display: flex; align-items: flex-start; gap: 14px; padding: 14px 18px; border-radius: 12px; margin-bottom: 12px; }
+  .conflict-alert.error { background: #FFEBEE; border: 1px solid #FFCDD2; }
+  .conflict-alert.warning { background: #FFF8E1; border: 1px solid #FFECB3; }
+  .conflict-alert.info { background: #E3F2FD; border: 1px solid #BBDEFB; }
+  .conflict-alert i { font-size: 20px; margin-top: 1px; flex-shrink: 0; }
+  .conflict-alert.error i { color: var(--danger); }
+  .conflict-alert.warning i { color: var(--warning); }
+  .conflict-alert.info i { color: var(--info); }
+  .conflict-alert .al-title { font-size: 14px; font-weight: 700; color: var(--text-main); }
+  .conflict-alert .al-desc { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+  /* ── MODALS ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(13,27,62,0.55); z-index: 500; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: #fff; border-radius: 18px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 24px 80px rgba(0,0,0,0.25); }
+  .modal-box::-webkit-scrollbar { width: 4px; }
+  .modal-box::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .modal-header { padding: 22px 26px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .modal-header h3 { font-size: 17px; font-weight: 700; color: var(--text-main); }
+  .modal-close { width: 30px; height: 30px; border-radius: 8px; border: none; background: var(--bg-page); cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .modal-close i { font-size: 18px; color: var(--text-muted); }
+  .modal-body { padding: 22px 26px; }
+  .modal-footer { padding: 16px 26px 22px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border); }
+  .form-group { margin-bottom: 18px; }
+  .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 6px; }
+  .form-control { width: 100%; height: 40px; border: 1.5px solid var(--border); border-radius: 9px; padding: 0 12px; font-size: 13.5px; color: var(--text-main); background: #fff; outline: none; transition: border-color .2s; }
+  .form-control:focus { border-color: var(--brand-blue); box-shadow: 0 0 0 3px rgba(21,101,192,0.08); }
+  .form-select { width: 100%; height: 40px; border: 1.5px solid var(--border); border-radius: 9px; padding: 0 12px; font-size: 13.5px; color: var(--text-main); background: #fff; outline: none; cursor: pointer; }
+  .form-select:focus { border-color: var(--brand-blue); }
+  textarea.form-control { height: auto; padding: 10px 12px; resize: vertical; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* ── SETTINGS ── */
+  .settings-grid { display: grid; grid-template-columns: 240px 1fr; gap: 24px; }
+  .settings-nav { background: var(--bg-card); border-radius: var(--card-radius); border: 1px solid var(--border); padding: 10px; height: fit-content; }
+  .settings-nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 9px; cursor: pointer; transition: background .15s; color: var(--text-muted); font-size: 13.5px; font-weight: 500; }
+  .settings-nav-item:hover { background: var(--bg-page); color: var(--text-main); }
+  .settings-nav-item.active { background: #EFF6FF; color: var(--brand-blue); }
+  .settings-nav-item i { font-size: 17px; }
+  .settings-panel { background: var(--bg-card); border-radius: var(--card-radius); border: 1px solid var(--border); padding: 28px; }
+  .settings-section { margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+  .settings-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+  .settings-section h4 { font-size: 15px; font-weight: 700; color: var(--text-main); margin-bottom: 4px; }
+  .settings-section p { font-size: 13px; color: var(--text-muted); margin-bottom: 18px; }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #F0F4FF; }
+  .toggle-row:last-child { border-bottom: none; }
+  .toggle-info .tl { font-size: 13.5px; font-weight: 600; color: var(--text-main); }
+  .toggle-info .ts { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+  .toggle-switch { position: relative; width: 42px; height: 24px; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider { position: absolute; inset: 0; background: #D0D7E8; border-radius: 12px; cursor: pointer; transition: background .2s; }
+  .toggle-slider::before { content: ''; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px; background: #fff; border-radius: 50%; transition: transform .2s; }
+  .toggle-switch input:checked + .toggle-slider { background: var(--brand-blue); }
+  .toggle-switch input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+  /* ── REPORTS ── */
+  .reports-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-bottom: 24px; }
+  .report-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--card-radius); padding: 22px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow-soft); transition: transform .2s; }
+  .report-card:hover { transform: translateY(-3px); }
+  .report-icon { width: 46px; height: 46px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+  .report-icon i { font-size: 22px; }
+  .report-card h3 { font-size: 15px; font-weight: 700; color: var(--text-main); }
+  .report-card p { font-size: 13px; color: var(--text-muted); flex: 1; }
+  .report-card .report-actions { display: flex; gap: 8px; }
+
+  /* ── UTILIZATION BAR ── */
+  .util-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; border-bottom: 1px solid #F0F4FF; }
+  .util-row:last-child { border-bottom: none; }
+  .util-name { font-size: 13px; font-weight: 600; color: var(--text-main); width: 120px; flex-shrink: 0; }
+  .util-bar { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .util-bar-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+  .util-pct { font-size: 12px; font-weight: 700; width: 38px; text-align: right; }
+
+  /* ── FACULTY WORKLOAD ── */
+  .workload-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid #F0F4FF; }
+  .workload-item:last-child { border-bottom: none; }
+  .workload-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .workload-info { flex: 1; min-width: 0; }
+  .workload-info .wn { font-size: 13px; font-weight: 600; color: var(--text-main); }
+  .workload-info .ws { font-size: 11.5px; color: var(--text-muted); }
+  .workload-hours { font-size: 13px; font-weight: 700; color: var(--text-main); }
+  .workload-bar { width: 80px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+  .workload-bar-fill { height: 100%; border-radius: 3px; }
+
+  /* ── AI SUGGESTION PANEL ── */
+  .ai-panel { background: linear-gradient(135deg, #EFF6FF, #E0F7FA); border: 1px solid #BBDEFB; border-radius: var(--card-radius); padding: 22px 24px; margin-bottom: 24px; }
+  .ai-panel-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .ai-panel-header .ai-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #1976D2, #00ACC1); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+  .ai-panel-header .ai-icon i { color: #fff; font-size: 20px; }
+  .ai-panel-header h3 { font-size: 16px; font-weight: 700; color: var(--text-main); }
+  .ai-panel-header p { font-size: 13px; color: var(--text-muted); }
+  .ai-suggestions { display: flex; flex-direction: column; gap: 10px; }
+  .ai-suggestion-item { background: rgba(255,255,255,0.8); border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.9); }
+  .ai-suggestion-item i { font-size: 18px; color: var(--brand-blue); flex-shrink: 0; }
+  .ai-suggestion-item .suggestion-text { flex: 1; font-size: 13px; color: var(--text-main); }
+  .ai-suggestion-item .apply-btn { font-size: 12px; font-weight: 600; color: var(--brand-blue); cursor: pointer; background: none; border: none; white-space: nowrap; }
+
+  /* ── MISC ── */
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; text-align: center; }
+  .empty-state i { font-size: 48px; color: var(--border); margin-bottom: 16px; }
+  .empty-state h4 { font-size: 16px; font-weight: 700; color: var(--text-muted); }
+  .empty-state p { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+  .info-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #F0F4FF; font-size: 13.5px; }
+  .info-row:last-child { border-bottom: none; }
+  .info-row .il { color: var(--text-muted); font-weight: 500; }
+  .info-row .iv { color: var(--text-main); font-weight: 600; }
+  .tab-bar { display: flex; gap: 4px; background: #F0F4FF; border-radius: 10px; padding: 4px; margin-bottom: 20px; }
+  .tab-btn { flex: 1; padding: 8px 14px; border-radius: 8px; border: none; background: none; font-size: 13px; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: background .15s, color .15s; text-align: center; }
+  .tab-btn.active { background: #fff; color: var(--brand-blue); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  .breadcrumb-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 20px; font-size: 13px; }
+  .breadcrumb-bar a { color: var(--brand-blue); text-decoration: none; }
+  .breadcrumb-bar span { color: var(--text-muted); }
+  .progress-wrap { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #1976D2, #00ACC1); transition: width 1s ease; }
+
+  @media (max-width: 900px) {
+    .sidebar { width: 0; }
+    .main-content { margin-left: 0; }
+    .topbar { left: 0; }
+    .settings-grid { grid-template-columns: 1fr; }
+    .landing-hero { flex-direction: column; padding: 100px 24px 48px; text-align: center; }
+    .hero-visual { margin-top: 40px; }
+    .dashboard-preview { width: 100%; max-width: 420px; }
+    .landing-features { padding: 60px 24px; }
+    .landing-nav { padding: 0 20px; }
+    .landing-nav-links { display: none; }
+    .landing-footer { flex-direction: column; gap: 8px; text-align: center; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+
+  /* Animation */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  .page-content.active { animation: fadeIn 0.28s ease; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .ai-icon { animation: pulse 2.5s infinite; }
+
+  /* Toast */
+  .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+  .toast { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.12); min-width: 280px; max-width: 380px; animation: slideInToast 0.3s ease; }
+  @keyframes slideInToast { from { transform: translateX(120%); } to { transform: translateX(0); } }
+  .toast.success { border-left: 4px solid var(--success); }
+  .toast.error { border-left: 4px solid var(--danger); }
+  .toast.warning { border-left: 4px solid var(--warning); }
+  .toast.info { border-left: 4px solid var(--info); }
+  .toast i { font-size: 20px; }
+  .toast.success i { color: var(--success); }
+  .toast.error i { color: var(--danger); }
+  .toast.warning i { color: var(--warning); }
+  .toast.info i { color: var(--info); }
+  .toast .toast-msg { flex: 1; font-size: 13.5px; font-weight: 500; color: var(--text-main); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════
+     LANDING PAGE
+═══════════════════════════════════════════════ -->
+<div id="page-landing">
+  <nav class="landing-nav">
+    <a class="landing-logo" href="#">
+      <div class="logo-icon"><i class="ti ti-school"></i></div>
+      <span>Edu<em>Sync</em></span>
+    </a>
+    <div class="landing-nav-links">
+      <a href="#">Features</a>
+      <a href="#">Analytics</a>
+      <a href="#">Timetable</a>
+      <a href="#">Pricing</a>
+    </div>
+    <button class="btn-landing-cta" onclick="showLogin()">Get Started Free</button>
+  </nav>
+
+  <section class="landing-hero">
+    <div class="hero-content">
+      <div class="hero-badge"><i class="ti ti-sparkles"></i> AI-Powered Scheduling Platform</div>
+      <h1 class="hero-title">Intelligent Classroom<br><em>Scheduling</em>, Automated.</h1>
+      <p class="hero-subtitle">EduSync eliminates timetable conflicts, optimizes room allocation, and automates faculty scheduling — so educators can focus on what matters most: teaching.</p>
+      <div class="hero-actions">
+        <button class="btn-hero-primary" onclick="showLogin()"><i class="ti ti-rocket"></i> Launch Dashboard</button>
+        <button class="btn-hero-secondary" onclick="scrollFeatures()">Explore Features</button>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="num">99.2%</div><div class="lbl">Conflict-Free Schedules</div></div>
+        <div class="hero-stat"><div class="num">12x</div><div class="lbl">Faster Than Manual</div></div>
+        <div class="hero-stat"><div class="num">500+</div><div class="lbl">Institutions</div></div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="dashboard-preview">
+        <div class="dp-header">
+          <div class="dp-dot" style="background:#ff5f57"></div>
+          <div class="dp-dot" style="background:#ffbd2e"></div>
+          <div class="dp-dot" style="background:#28ca41"></div>
+          <span class="dp-title">EduSync Dashboard</span>
+        </div>
+        <div class="dp-mini-cards">
+          <div class="dp-mini-card"><div class="val">42</div><div class="lbl">Classrooms</div></div>
+          <div class="dp-mini-card"><div class="val">128</div><div class="lbl">Faculty</div></div>
+          <div class="dp-mini-card"><div class="val">96%</div><div class="lbl">Attendance</div></div>
+          <div class="dp-mini-card"><div class="val">0</div><div class="lbl">Conflicts</div></div>
+        </div>
+        <div class="dp-chart-area">
+          <div class="dp-bar" style="height:55%"></div>
+          <div class="dp-bar" style="height:80%"></div>
+          <div class="dp-bar" style="height:65%"></div>
+          <div class="dp-bar" style="height:90%"></div>
+          <div class="dp-bar" style="height:70%"></div>
+          <div class="dp-bar" style="height:85%"></div>
+          <div class="dp-bar" style="height:60%"></div>
+        </div>
+        <div class="dp-timetable">
+          <div class="dp-tt-row"><span class="dp-tt-time">09:00</span><span class="dp-tt-slot" style="background:rgba(25,118,210,0.35)">Data Structures — CS201</span><span class="dp-tt-room">A-204</span></div>
+          <div class="dp-tt-row"><span class="dp-tt-time">10:00</span><span class="dp-tt-slot" style="background:rgba(0,172,193,0.3)">Algorithms — CS301</span><span class="dp-tt-room">B-102</span></div>
+          <div class="dp-tt-row"><span class="dp-tt-time">11:00</span><span class="dp-tt-slot" style="background:rgba(106,27,154,0.25)">DBMS Lab — CS Lab</span><span class="dp-tt-room">Lab-1</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing-features" id="features">
+    <div style="max-width:600px">
+      <div class="section-label">Why EduSync</div>
+      <h2 class="section-title">Every feature your institution needs</h2>
+      <p class="section-subtitle">From automated timetabling to AI conflict detection, EduSync covers the full lifecycle of academic scheduling.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#E3F2FD"><i class="ti ti-calendar-event" style="color:#1565C0;font-size:24px"></i></div>
+        <h3>Automated Timetable Generation</h3>
+        <p>Generate weekly and monthly schedules in seconds. Our constraint-based engine eliminates clashes before they happen.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#E0F7FA"><i class="ti ti-brain" style="color:#006064;font-size:24px"></i></div>
+        <h3>AI-Based Scheduling</h3>
+        <p>Machine learning optimizes schedules using faculty preferences, room utilization, and subject priority scoring.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#F3E5F5"><i class="ti ti-alert-triangle" style="color:#6A1B9A;font-size:24px"></i></div>
+        <h3>Conflict Prediction</h3>
+        <p>Detect faculty clashes, room double-bookings, and time overlaps before publishing — with actionable fix suggestions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#E8F5E9"><i class="ti ti-chart-bar" style="color:#2E7D32;font-size:24px"></i></div>
+        <h3>Classroom Analytics</h3>
+        <p>Track utilization rates room by room. Identify underused spaces and high-demand timeslots with rich visual reports.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#FFF8E1"><i class="ti ti-users" style="color:#E65100;font-size:24px"></i></div>
+        <h3>Faculty Preference Scheduling</h3>
+        <p>Faculty submit preferred hours and subjects. The scheduler incorporates these preferences automatically.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#FFEBEE"><i class="ti ti-clipboard-check" style="color:#C62828;font-size:24px"></i></div>
+        <h3>Attendance Integration</h3>
+        <p>Mark and manage attendance directly from timetable view. Instant reports per student, subject, and department.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="landing-footer">
+    <span>© 2025 EduSync — Smart Classroom & Timetable Scheduler. Final Year Project.</span>
+    <span>Built with Flask · MySQL · Bootstrap · Chart.js</span>
+  </footer>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     LOGIN PAGE
+═══════════════════════════════════════════════ -->
+<div id="page-login" style="display:none; min-height:100vh; background:linear-gradient(135deg,#0D1B3E 0%,#1565C0 100%); align-items:center; justify-content:center;">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo-icon"><i class="ti ti-school"></i></div>
+      <h2>Welcome to EduSync</h2>
+      <p>Smart Classroom & Timetable Scheduler</p>
+    </div>
+    <div class="auth-form">
+      <div class="mb-3">
+        <label class="form-label">Email Address</label>
+        <input type="email" class="form-control" id="login-email" value="admin@edusync.edu" placeholder="admin@edusync.edu">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-control" id="login-pass" value="admin123" placeholder="••••••••">
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-4" style="font-size:13px">
+        <label style="display:flex;gap:6px;align-items:center;cursor:pointer;color:var(--text-muted)"><input type="checkbox" checked> Remember me</label>
+        <a href="#" style="color:var(--brand-blue);text-decoration:none">Forgot password?</a>
+      </div>
+      <button class="btn-auth" onclick="doLogin()">Sign In to Dashboard</button>
+      <div class="auth-demo">
+        <strong>Demo Credentials:</strong> admin@edusync.edu / admin123
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:20px;font-size:13px;color:var(--text-muted)">
+      <a href="#" onclick="showLanding()" style="color:var(--brand-blue);text-decoration:none">← Back to home</a>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════════════ -->
+<div id="page-app" style="display:none">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon"><i class="ti ti-school"></i></div>
+      <span>Edu<em>Sync</em></span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a class="nav-item active" onclick="showPage('dashboard', this)">
+        <i class="ti ti-layout-dashboard"></i><span>Dashboard</span>
+      </a>
+      <a class="nav-item" onclick="showPage('analytics', this)">
+        <i class="ti ti-chart-dots-3"></i><span>Analytics</span>
+      </a>
+      <div class="nav-section-label">Management</div>
+      <a class="nav-item" onclick="showPage('faculty', this)">
+        <i class="ti ti-users"></i><span>Faculty</span>
+      </a>
+      <a class="nav-item" onclick="showPage('classrooms', this)">
+        <i class="ti ti-building"></i><span>Classrooms</span>
+      </a>
+      <a class="nav-item" onclick="showPage('subjects', this)">
+        <i class="ti ti-books"></i><span>Subjects & Courses</span>
+      </a>
+      <div class="nav-section-label">Scheduling</div>
+      <a class="nav-item" onclick="showPage('timetable', this)">
+        <i class="ti ti-calendar-week"></i><span>Timetable Generator</span>
+      </a>
+      <a class="nav-item" onclick="showPage('attendance', this)">
+        <i class="ti ti-clipboard-check"></i><span>Attendance</span><span class="badge">3</span>
+      </a>
+      <div class="nav-section-label">Reports</div>
+      <a class="nav-item" onclick="showPage('reports', this)">
+        <i class="ti ti-file-analytics"></i><span>Reports</span>
+      </a>
+      <a class="nav-item" onclick="showPage('notifications', this)">
+        <i class="ti ti-bell"></i><span>Notifications</span><span class="badge">5</span>
+      </a>
+      <div class="nav-section-label">System</div>
+      <a class="nav-item" onclick="showPage('settings', this)">
+        <i class="ti ti-settings"></i><span>Settings</span>
+      </a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="avatar">AD</div>
+        <div class="info">
+          <div class="name">Dr. Admin User</div>
+          <div class="role">Administrator</div>
+        </div>
+        <i class="ti ti-logout" style="color:rgba(255,255,255,0.3);cursor:pointer;font-size:16px;margin-left:auto" onclick="doLogout()" title="Logout"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-title" id="topbar-title">Dashboard</div>
+    <div class="topbar-search">
+      <i class="ti ti-search"></i>
+      <input type="text" placeholder="Search faculty, classrooms, subjects…" id="global-search">
+    </div>
+    <div class="topbar-actions">
+      <div class="topbar-icon-btn" onclick="showPage('notifications', null)" title="Notifications">
+        <i class="ti ti-bell"></i>
+        <div class="notif-dot"></div>
+      </div>
+      <div class="topbar-icon-btn" title="Help">
+        <i class="ti ti-help-circle"></i>
+      </div>
+      <div class="topbar-avatar" onclick="showPage('settings', null)" title="Profile">AD</div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- ── DASHBOARD PAGE ── -->
+    <div class="page-content active" id="pg-dashboard">
+      <div class="page-header">
+        <div>
+          <h1>Good morning, Dr. Admin 👋</h1>
+          <p>Here's what's happening at your institution today — Wednesday, June 2025</p>
+        </div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-secondary" onclick="showPage('reports',null)"><i class="ti ti-download"></i> Export Report</button>
+          <button class="btn-primary" onclick="showPage('timetable',null)"><i class="ti ti-sparkles"></i> Generate Timetable</button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#E3F2FD"><i class="ti ti-building" style="color:#1565C0"></i></div>
+          <div class="stat-body">
+            <div class="value">42</div>
+            <div class="label">Total Classrooms</div>
+            <div class="change up"><i class="ti ti-arrow-up" style="font-size:11px"></i> 3 new this semester</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#F3E5F5"><i class="ti ti-users" style="color:#6A1B9A"></i></div>
+          <div class="stat-body">
+            <div class="value">128</div>
+            <div class="label">Total Faculty</div>
+            <div class="change up"><i class="ti ti-arrow-up" style="font-size:11px"></i> 8 joined this year</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#E8F5E9"><i class="ti ti-books" style="color:#2E7D32"></i></div>
+          <div class="stat-body">
+            <div class="value">214</div>
+            <div class="label">Total Subjects</div>
+            <div class="change up"><i class="ti ti-arrow-up" style="font-size:11px"></i> 12 added this sem</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#E0F7FA"><i class="ti ti-calendar-check" style="color:#006064"></i></div>
+          <div class="stat-body">
+            <div class="value">18</div>
+            <div class="label">Active Timetables</div>
+            <div class="change up"><i class="ti ti-arrow-up" style="font-size:11px"></i> All conflict-free</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#FFF8E1"><i class="ti ti-clipboard-check" style="color:#F57F17"></i></div>
+          <div class="stat-body">
+            <div class="value">94.2%</div>
+            <div class="label">Avg Attendance</div>
+            <div class="change up"><i class="ti ti-arrow-up" style="font-size:11px"></i> +2.1% vs last month</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:#FFEBEE"><i class="ti ti-alert-triangle" style="color:#C62828"></i></div>
+          <div class="stat-body">
+            <div class="value">0</div>
+            <div class="label">Active Conflicts</div>
+            <div class="change up"><i class="ti ti-check" style="font-size:11px"></i> System healthy</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-row">
+        <div class="card-box">
+          <div class="card-box-header">
+            <h3><i class="ti ti-chart-bar" style="color:var(--brand-blue);margin-right:6px"></i>Classroom Utilization</h3>
+            <span class="badge-pill badge-blue">This Week</span>
+          </div>
+          <div class="card-box-body">
+            <div style="height:200px;position:relative"><canvas id="utilizationChart" role="img" aria-label="Bar chart of classroom utilization by department">Utilization data by department.</canvas></div>
+          </div>
+        </div>
+        <div class="card-box">
+          <div class="card-box-header">
+            <h3><i class="ti ti-chart-pie" style="color:#6A1B9A;margin-right:6px"></i>Faculty Workload</h3>
+            <span class="badge-pill badge-purple">Current Month</span>
+          </div>
+          <div class="card-box-body">
+            <div class="workload-item">
+              <div class="workload-avatar" style="background:#E3F2FD;color:#1565C0">DR</div>
+              <div class="workload-info"><div class="wn">Dr. Ramesh Kumar</div><div class="ws">CSE Dept</div></div>
+              <div class="workload-hours">18 hrs</div>
+              <div class="workload-bar"><div class="workload-bar-fill" style="width:90%;background:#1976D2"></div></div>
+            </div>
+            <div class="workload-item">
+              <div class="workload-avatar" style="background:#F3E5F5;color:#6A1B9A">PA</div>
+              <div class="workload-info"><div class="wn">Prof. Ananya Sharma</div><div class="ws">ECE Dept</div></div>
+              <div class="workload-hours">16 hrs</div>
+              <div class="workload-bar"><div class="workload-bar-fill" style="width:80%;background:#8E24AA"></div></div>
+            </div>
+            <div class="workload-item">
+              <div class="workload-avatar" style="background:#E8F5E9;color:#2E7D32">MV</div>
+              <div class="workload-info"><div class="wn">Mr. Vijay Nair</div><div class="ws">Mathematics</div></div>
+              <div class="workload-hours">14 hrs</div>
+              <div class="workload-bar"><div class="workload-bar-fill" style="width:70%;background:#43A047"></div></div>
+            </div>
+            <div class="workload-item">
+              <div class="workload-avatar" style="background:#FFF8E1;color:#E65100">SP</div>
+              <div class="workload-info"><div class="wn">Dr. Sunita Pillai</div><div class="ws">IT Dept</div></div>
+              <div class="workload-hours">20 hrs</div>
+              <div class="workload-bar"><div class="workload-bar-fill" style="width:100%;background:#FB8C00"></div></div>
+            </div>
+            <div class="workload-item">
+              <div class="workload-avatar" style="background:#E0F7FA;color:#006064">KT</div>
+              <div class="workload-info"><div class="wn">Dr. Krishna Tiwari</div><div class="ws">Physics</div></div>
+              <div class="workload-hours">12 hrs</div>
+              <div class="workload-bar"><div class="workload-bar-fill" style="width:60%;background:#00897B"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards-row">
+        <div class="card-box">
+          <div class="card-box-header">
+            <h3><i class="ti ti-activity" style="color:var(--success);margin-right:6px"></i>Recent Activity</h3>
+            <a href="#" style="font-size:13px;color:var(--brand-blue);text-decoration:none">View all</a>
+          </div>
+          <div class="card-box-body">
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-icon" style="background:#E3F2FD"><i class="ti ti-calendar-plus" style="color:#1565C0"></i></div>
+                <div class="activity-body"><div class="title">Timetable generated for CSE Sem 5</div><div class="meta">by Admin • 2 mins ago</div></div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon" style="background:#E8F5E9"><i class="ti ti-user-plus" style="color:#2E7D32"></i></div>
+                <div class="activity-body"><div class="title">New faculty Dr. Priya Nair added to ECE</div><div class="meta">by Admin • 18 mins ago</div></div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon" style="background:#FFF8E1"><i class="ti ti-building-plus" style="color:#E65100"></i></div>
+                <div class="activity-body"><div class="title">Smart Lab 3 marked as available</div><div class="meta">by Facilities • 1 hr ago</div></div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon" style="background:#FFEBEE"><i class="ti ti-alert-triangle" style="color:#C62828"></i></div>
+                <div class="activity-body"><div class="title">Conflict detected in IT Sem 3 — resolved</div><div class="meta">Auto-resolved • 2 hrs ago</div></div>
+              </div>
+              <div class="activity-item">
+                <div class="activity-icon" style="background:#F3E5F5"><i class="ti ti-clipboard-check" style="color:#6A1B9A"></i></div>
+                <div class="activity-body"><div class="title">Attendance marked for 6 classes today</div><div class="meta">by Faculty • 3 hrs ago</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-box">
+          <div class="card-box-header">
+            <h3><i class="ti ti-bell" style="color:var(--warning);margin-right:6px"></i>Notifications</h3>
+            <span class="badge-pill badge-red">5 unread</span>
+          </div>
+          <div class="card-box-body" style="padding:12px 10px">
+            <div class="notif-list">
+              <div class="notif-item unread">
+                <div class="notif-dot2" style="background:var(--danger)"></div>
+                <div class="notif-text"><strong>CSE 5 Timetable</strong> has 1 unresolved room conflict</div>
+                <span class="notif-time">now</span>
+              </div>
+              <div class="notif-item unread">
+                <div class="notif-dot2" style="background:var(--warning)"></div>
+                <div class="notif-text"><strong>Dr. Ananya</strong> submitted preference for morning slots</div>
+                <span class="notif-time">5m</span>
+              </div>
+              <div class="notif-item unread">
+                <div class="notif-dot2" style="background:var(--info)"></div>
+                <div class="notif-text"><strong>Lab 2</strong> capacity updated to 60 students</div>
+                <span class="notif-time">20m</span>
+              </div>
+              <div class="notif-item">
+                <div class="notif-dot2" style="background:var(--border)"></div>
+                <div class="notif-text">Timetable export for ECE Sem 3 is ready</div>
+                <span class="notif-time">1h</span>
+              </div>
+              <div class="notif-item">
+                <div class="notif-dot2" style="background:var(--border)"></div>
+                <div class="notif-text">Monthly attendance report generated</div>
+                <span class="notif-time">2h</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attendance Summary Card -->
+      <div class="card-box" style="margin-bottom:24px">
+        <div class="card-box-header">
+          <h3><i class="ti ti-chart-line" style="color:var(--success);margin-right:6px"></i>Attendance Trend — This Month</h3>
+          <span class="badge-pill badge-green">June 2025</span>
+        </div>
+        <div class="card-box-body">
+          <div style="height:180px;position:relative"><canvas id="attendanceTrendChart" role="img" aria-label="Line chart showing attendance trend over the month">Attendance trend data for June 2025.</canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── FACULTY PAGE ── -->
+    <div class="page-content" id="pg-faculty">
+      <div class="page-header">
+        <div><h1>Faculty Management</h1><p>Manage faculty records, availability, and workload</p></div>
+        <button class="btn-primary" onclick="openModal('modal-add-faculty')"><i class="ti ti-plus"></i> Add Faculty</button>
+      </div>
+
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+        <div class="stat-card" style="padding:16px 20px">
+          <div class="stat-icon" style="background:#E3F2FD;width:40px;height:40px"><i class="ti ti-users" style="color:#1565C0;font-size:20px"></i></div>
+          <div class="stat-body"><div class="value" style="font-size:22px">128</div><div class="label">Total Faculty</div></div>
+        </div>
+        <div class="stat-card" style="padding:16px 20px">
+          <div class="stat-icon" style="background:#E8F5E9;width:40px;height:40px"><i class="ti ti-circle-check" style="color:#2E7D32;font-size:20px"></i></div>
+          <div class="stat-body"><div class="value" style="font-size:22px">112</div><div class="label">Active</div></div>
+        </div>
+        <div class="stat-card" style="padding:16px 20px">
+          <div class="stat-icon" style="background:#FFF8E1;width:40px;height:40px"><i class="ti ti-clock" style="color:#E65100;font-size:20px"></i></div>
+          <div class="stat-body"><div class="value" style="font-size:22px">16</div><div class="label">On Leave</div></div>
+        </div>
+        <div class="stat-card" style="padding:16px 20px">
+          <div class="stat-icon" style="background:#F3E5F5;width:40px;height:40px"><i class="ti ti-award" style="color:#6A1B9A;font-size:20px"></i></div>
+          <div class="stat-body"><div class="value" style="font-size:22px">34</div><div class="label">Professors</div></div>
+        </div>
+      </div>
+
+      <div class="data-table-wrap">
+        <div class="data-table-toolbar">
+          <h3>Faculty Directory</h3>
+          <div class="tbl-search"><i class="ti ti-search"></i><input type="text" placeholder="Search faculty…" onkeyup="filterTable('faculty-table', this.value)"></div>
+          <select class="tbl-filter"><option>All Departments</option><option>CSE</option><option>ECE</option><option>IT</option><option>Mathematics</option><option>Physics</option></select>
+          <select class="tbl-filter"><option>All Designations</option><option>Professor</option><option>Assoc. Professor</option><option>Asst. Professor</option></select>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn-secondary btn-sm"><i class="ti ti-download"></i> Export</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="main-table" id="faculty-table">
+            <thead>
+              <tr>
+                <th>Faculty</th><th>Department</th><th>Designation</th><th>Subjects</th><th>Weekly Hours</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="faculty-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CLASSROOMS PAGE ── -->
+    <div class="page-content" id="pg-classrooms">
+      <div class="page-header">
+        <div><h1>Classroom Management</h1><p>Manage rooms, labs, and smart classrooms</p></div>
+        <button class="btn-primary" onclick="openModal('modal-add-room')"><i class="ti ti-plus"></i> Add Classroom</button>
+      </div>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab(this, 'rooms-all')">All Rooms (42)</button>
+        <button class="tab-btn" onclick="switchTab(this, 'rooms-class')">Classrooms (24)</button>
+        <button class="tab-btn" onclick="switchTab(this, 'rooms-lab')">Labs (12)</button>
+        <button class="tab-btn" onclick="switchTab(this, 'rooms-smart')">Smart Rooms (6)</button>
+      </div>
+
+      <div class="data-table-wrap">
+        <div class="data-table-toolbar">
+          <h3>Room Directory</h3>
+          <div class="tbl-search"><i class="ti ti-search"></i><input type="text" placeholder="Search rooms…" onkeyup="filterTable('room-table', this.value)"></div>
+          <select class="tbl-filter"><option>All Buildings</option><option>Block A</option><option>Block B</option><option>Block C</option><option>Lab Block</option></select>
+          <button class="btn-secondary btn-sm" style="margin-left:auto"><i class="ti ti-download"></i> Export</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="main-table" id="room-table">
+            <thead>
+              <tr><th>Room</th><th>Building</th><th>Type</th><th>Capacity</th><th>Facilities</th><th>Utilization</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="room-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SUBJECTS PAGE ── -->
+    <div class="page-content" id="pg-subjects">
+      <div class="page-header">
+        <div><h1>Subjects & Courses</h1><p>Manage departments, courses, and subject catalog</p></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-secondary" onclick="openModal('modal-add-dept')"><i class="ti ti-plus"></i> Add Department</button>
+          <button class="btn-primary" onclick="openModal('modal-add-subject')"><i class="ti ti-plus"></i> Add Subject</button>
+        </div>
+      </div>
+
+      <div class="cards-row" style="grid-template-columns:1fr 2fr">
+        <div class="card-box">
+          <div class="card-box-header"><h3>Departments</h3><span class="badge-pill badge-blue">8 total</span></div>
+          <div class="card-box-body" style="padding:0">
+            <div id="dept-list"></div>
+          </div>
+        </div>
+        <div class="card-box">
+          <div class="card-box-header">
+            <h3>Subject Catalog</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div class="tbl-search" style="max-width:180px"><i class="ti ti-search"></i><input type="text" placeholder="Search…" onkeyup="filterTable('subj-table', this.value)"></div>
+              <span class="badge-pill badge-green">214 subjects</span>
+            </div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="main-table" id="subj-table">
+              <thead><tr><th>Subject Code</th><th>Subject Name</th><th>Department</th><th>Credits</th><th>Type</th><th>Actions</th></tr></thead>
+              <tbody id="subj-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── TIMETABLE GENERATOR ── -->
+    <div class="page-content" id="pg-timetable">
+      <div class="page-header">
+        <div><h1>Timetable Generator</h1><p>AI-powered automated schedule creation with conflict detection</p></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-secondary"><i class="ti ti-download"></i> Export PDF</button>
+          <button class="btn-secondary"><i class="ti ti-table-export"></i> Export Excel</button>
+        </div>
+      </div>
+
+      <!-- AI Panel -->
+      <div class="ai-panel">
+        <div class="ai-panel-header">
+          <div class="ai-icon"><i class="ti ti-sparkles"></i></div>
+          <div>
+            <h3>AI Timetable Suggestions</h3>
+            <p>Based on faculty preferences, room capacity, and subject priority</p>
+          </div>
+          <button class="btn-primary" style="margin-left:auto" onclick="generateTimetable()"><i class="ti ti-wand"></i> Generate Now</button>
+        </div>
+        <div class="ai-suggestions" id="ai-suggestions-list">
+          <div class="ai-suggestion-item"><i class="ti ti-bulb"></i><span class="suggestion-text">Dr. Ramesh prefers morning slots (8–12). Algorithm classes scheduled accordingly in Room A-204.</span><button class="apply-btn" onclick="showToast('Applied preference for Dr. Ramesh','success')">Apply ✓</button></div>
+          <div class="ai-suggestion-item"><i class="ti ti-building"></i><span class="suggestion-text">Lab sessions recommended in Smart Lab 1 (capacity 60) — matches CS301 enrollment of 54 students.</span><button class="apply-btn" onclick="showToast('Smart Lab 1 assigned','success')">Apply ✓</button></div>
+          <div class="ai-suggestion-item"><i class="ti ti-alert-triangle" style="color:var(--warning)"></i><span class="suggestion-text">Conflict detected: IT Sem 3 and CSE Sem 5 both need Room B-102 on Wednesday 11:00 AM.</span><button class="apply-btn" onclick="showToast('Conflict resolved — moved to B-104','success')">Fix ✓</button></div>
+        </div>
+      </div>
+
+      <!-- Conflict Alerts -->
+      <div class="conflict-alert error">
+        <i class="ti ti-x-circle"></i>
+        <div><div class="al-title">Faculty Clash: Prof. Ananya Sharma</div><div class="al-desc">Scheduled in ECE-301 and IT-201 simultaneously on Monday 10:00 AM. Please reassign one class.</div></div>
+        <button class="btn-danger btn-sm" style="margin-left:auto" onclick="this.closest('.conflict-alert').remove();showToast('Conflict dismissed','info')">Dismiss</button>
+      </div>
+      <div class="conflict-alert warning">
+        <i class="ti ti-alert-triangle"></i>
+        <div><div class="al-title">Room Overcapacity: A-101 on Thursday</div><div class="al-desc">65 students assigned to a room with capacity 60. Consider moving to B-Hall (capacity 120).</div></div>
+        <button class="btn-secondary btn-sm" style="margin-left:auto" onclick="showToast('Moved to B-Hall','success');this.closest('.conflict-alert').remove()">Auto-Fix</button>
+      </div>
+
+      <!-- Timetable Controls -->
+      <div class="tt-controls">
+        <select class="tt-select" onchange="renderTimetable()">
+          <option>CSE — Semester 5</option>
+          <option>ECE — Semester 3</option>
+          <option>IT — Semester 1</option>
+          <option>Mechanical — Semester 4</option>
+        </select>
+        <select class="tt-select">
+          <option>Week 1 — June 2025</option>
+          <option>Week 2 — June 2025</option>
+          <option>Week 3 — June 2025</option>
+        </select>
+        <select class="tt-select">
+          <option>Section A</option>
+          <option>Section B</option>
+          <option>Section C</option>
+        </select>
+        <button class="btn-primary" onclick="showToast('Timetable published to students','success')"><i class="ti ti-send"></i> Publish</button>
+      </div>
+
+      <!-- Legend -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;font-size:12px">
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#E3F2FD;border:1px solid #1565C0"></span>Theory</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#E8F5E9;border:1px solid #2E7D32"></span>Practical/Lab</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#F3E5F5;border:1px solid #6A1B9A"></span>Tutorial</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#FFF8E1;border:1px solid #E65100"></span>Seminar</span>
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:12px;height:12px;border-radius:3px;background:#F5F5F5;border:1px solid #9E9E9E"></span>Break/Free</span>
+      </div>
+
+      <div class="tt-grid">
+        <div style="overflow-x:auto">
+          <table class="tt-table" id="main-timetable"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ATTENDANCE PAGE ── -->
+    <div class="page-content" id="pg-attendance">
+      <div class="page-header">
+        <div><h1>Attendance Management</h1><p>Mark and track student attendance by class and subject</p></div>
+        <div style="display:flex;gap:10px">
+          <button class="btn-secondary"><i class="ti ti-download"></i> Export Report</button>
+          <button class="btn-primary" onclick="showToast('Attendance saved successfully','success')"><i class="ti ti-device-floppy"></i> Save Attendance</button>
+        </div>
+      </div>
+
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab(this, 'att-mark')">Mark Attendance</button>
+        <button class="tab-btn" onclick="switchTab(this, 'att-report')">Reports</button>
+        <button class="tab-btn" onclick="switchTab(this, 'att-summary')">Summary</button>
+      </div>
+
+      <div class="att-class-cards" id="att-classes">
+        <div class="att-class-card selected" onclick="selectAttClass(this)">
+          <h4>CS301 — Algorithms</h4>
+          <div class="meta">Dr. Ramesh Kumar • Mon 09:00</div>
+          <div class="pct" style="color:#2E7D32">96%</div>
+          <div class="att-bar"><div class="att-bar-fill" style="width:96%"></div></div>
+        </div>
+        <div class="att-class-card" onclick="selectAttClass(this)">
+          <h4>CS401 — Operating Systems</h4>
+          <div class="meta">Dr. Sunita Pillai • Mon 10:00</div>
+          <div class="pct" style="color:#F57F17">78%</div>
+          <div class="att-bar"><div class="att-bar-fill" style="width:78%"></div></div>
+        </div>
+        <div class="att-class-card" onclick="selectAttClass(this)">
+          <h4>CS201 — Data Structures</h4>
+          <div class="meta">Prof. Vijay Nair • Tue 11:00</div>
+          <div class="pct" style="color:#2E7D32">91%</div>
+          <div class="att-bar"><div class="att-bar-fill" style="width:91%"></div></div>
+        </div>
+        <div class="att-class-card" onclick="selectAttClass(this)">
+          <h4>DBMS Lab</h4>
+          <div class="meta">Dr. Ananya • Wed 02:00</div>
+          <div class="pct" style="color:#C62828">65%</div>
+          <div class="att-bar"><div class="att-bar-fill" style="width:65%;background:linear-gradient(90deg,#C62828,#E57373)"></div></div>
+        </div>
+      </div>
+
+      <div class="data-table-wrap">
+        <div class="data-table-toolbar">
+          <h3>CS301 — Algorithms | Wednesday, 11 June 2025</h3>
+          <div class="tbl-search"><i class="ti ti-search"></i><input type="text" placeholder="Search student…" onkeyup="filterTable('att-table', this.value)"></div>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn-secondary btn-sm" onclick="markAllPresent()"><i class="ti ti-check"></i> Mark All Present</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="main-table att-student-table" id="att-table">
+            <thead><tr><th><input type="checkbox" onchange="toggleAll(this)"></th><th>Roll No</th><th>Student Name</th><th>Department</th><th>Overall %</th><th>Today</th></tr></thead>
+            <tbody id="att-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── ANALYTICS PAGE ── -->
+    <div class="page-content" id="pg-analytics">
+      <div class="page-header">
+        <div><h1>Analytics Dashboard</h1><p>Comprehensive insights on scheduling, utilization, and attendance</p></div>
+        <div style="display:flex;gap:10px">
+          <select class="tt-select">
+            <option>June 2025</option><option>May 2025</option><option>April 2025</option>
+          </select>
+          <button class="btn-primary"><i class="ti ti-download"></i> Export PDF</button>
+        </div>
+      </div>
+
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+        <div class="stat-card" style="padding:18px 20px">
+          <div class="stat-icon" style="background:#E3F2FD;width:44px;height:44px"><i class="ti ti-building" style="color:#1565C0;font-size:22px"></i></div>
+          <div class="stat-body"><div class="value" style="font-size:24px">76.4%</div><div class="label">Avg Room Utilization</div><div class="change up">+5.2% vs last month</div></div>
+        </div>
+        <div class="stat-card" style="padding:18px 20px">
+          <div class="stat-icon" style="background:#E8F5E9;width:44px;height:44px"><i class="ti ti-clipboard-check" style="color:#2E7D32;font-size:22px"></i></div>
+          <div class="stat-body"><div class="value" style="font-size:24px">94.2%</div><div class="label">Attendance Rate</div><div class="change up">+2.1% vs last month</div></div>
+        </div>
+        <div class="stat-card" style="padding:18px 20px">
+          <div class="stat-icon" style="background:#FFF8E1;width:44px;height:44px"><i class="ti ti-clock" style="color:#E65100;font-size:22px"></i></div>
+          <div class="stat-body"><div class="value" style="font-size:24px">16.2</div><div class="label">Avg Faculty Hours/Week</div><div class="change down">-0.8 vs last month</div></div>
+        </div>
+        <div class="stat-card" style="padding:18px 20px">
+          <div class="stat-icon" style="background:#FFEBEE;width:44px;height:44px"><i class="ti ti-x-circle" style="color:#C62828;font-size:22px"></i></div>
+          <div class="stat-body"><div class="value" style="font-size:24px">3</div><div class="label">Conflicts This Month</div><div class="change up">-7 vs last month</div></div>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <div class="chart-card">
+          <h3>Room Utilization by Type</h3>
+          <p>Average usage rate across room categories</p>
+          <div style="height:220px;position:relative"><canvas id="roomTypeChart" role="img" aria-label="Doughnut chart of room utilization by type">Room utilization by type data.</canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Department-wise Attendance</h3>
+          <p>Average attendance percentage per department</p>
+          <div style="height:220px;position:relative"><canvas id="deptAttChart" role="img" aria-label="Bar chart of attendance by department">Department attendance data.</canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Weekly Schedule Load</h3>
+          <p>Classes scheduled per day of the week</p>
+          <div style="height:220px;position:relative"><canvas id="weekLoadChart" role="img" aria-label="Bar chart of classes per day">Weekly load data.</canvas></div>
+        </div>
+        <div class="chart-card">
+          <h3>Faculty Workload Distribution</h3>
+          <p>Hours per week across departments</p>
+          <div style="height:220px;position:relative"><canvas id="facultyLoadChart" role="img" aria-label="Horizontal bar chart of faculty workload">Faculty workload data.</canvas></div>
+        </div>
+      </div>
+
+      <div class="card-box" style="margin-top:20px">
+        <div class="card-box-header"><h3>Classroom Utilization Heatmap</h3><span class="badge-pill badge-blue">Current Week</span></div>
+        <div class="card-box-body">
+          <div id="util-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── REPORTS PAGE ── -->
+    <div class="page-content" id="pg-reports">
+      <div class="page-header">
+        <div><h1>Reports & Exports</h1><p>Generate and download institutional reports</p></div>
+      </div>
+
+      <div class="reports-grid">
+        <div class="report-card">
+          <div class="report-icon" style="background:#E3F2FD"><i class="ti ti-calendar-stats" style="color:#1565C0"></i></div>
+          <h3>Timetable Summary</h3>
+          <p>Complete schedule overview for all departments and semesters.</p>
+          <div class="report-actions">
+            <button class="btn-secondary btn-sm" onclick="showToast('PDF generation started','info')"><i class="ti ti-file-type-pdf"></i> PDF</button>
+            <button class="btn-secondary btn-sm" onclick="showToast('Excel export started','info')"><i class="ti ti-table-export"></i> Excel</button>
+          </div>
+        </div>
+        <div class="report-card">
+          <div class="report-icon" style="background:#E8F5E9"><i class="ti ti-clipboard-list" style="color:#2E7D32"></i></div>
+          <h3>Attendance Report</h3>
+          <p>Student-wise and subject-wise attendance statistics with analytics.</p>
+          <div class="report-actions">
+            <button class="btn-secondary btn-sm" onclick="showToast('PDF generation started','info')"><i class="ti ti-file-type-pdf"></i> PDF</button>
+            <button class="btn-secondary btn-sm" onclick="showToast('Excel export started','info')"><i class="ti ti-table-export"></i> Excel</button>
+          </div>
+        </div>
+        <div class="report-card">
+          <div class="report-icon" style="background:#F3E5F5"><i class="ti ti-building-community" style="color:#6A1B9A"></i></div>
+          <h3>Room Utilization Report</h3>
+          <p>Usage statistics for all classrooms, labs, and smart rooms.</p>
+          <div class="report-actions">
+            <button class="btn-secondary btn-sm" onclick="showToast('PDF generation started','info')"><i class="ti ti-file-type-pdf"></i> PDF</button>
+            <button class="btn-secondary btn-sm" onclick="showToast('Excel export started','info')"><i class="ti ti-table-export"></i> Excel</button>
+          </div>
+        </div>
+        <div class="report-card">
+          <div class="report-icon" style="background:#FFF8E1"><i class="ti ti-users-group" style="color:#E65100"></i></div>
+          <h3>Faculty Workload Report</h3>
+          <p>Teaching hours, subject allocation, and availability matrix.</p>
+          <div class="report-actions">
+            <button class="btn-secondary btn-sm" onclick="showToast('PDF generation started','info')"><i class="ti ti-file-type-pdf"></i> PDF</button>
+            <button class="btn-secondary btn-sm" onclick="showToast('Excel export started','info')"><i class="ti ti-table-export"></i> Excel</button>
+          </div>
+        </div>
+        <div class="report-card">
+          <div class="report-icon" style="background:#FFEBEE"><i class="ti ti-alert-circle" style="color:#C62828"></i></div>
+          <h3>Conflict Detection Log</h3>
+          <p>History of all detected conflicts and resolutions.</p>
+          <div class="report-actions">
+            <button class="btn-secondary btn-sm" onclick="showToast('PDF generation started','info')"><i class="ti ti-file-type-pdf"></i> PDF</button>
+            <button class="btn-secondary btn-sm" onclick="showToast('Excel export started','info')"><i class="ti ti-table-export"></i> Excel</button>
+          </div>
+        </div>
+        <div class="report-card">
+          <div class="report-icon" style="background:#E0F7FA"><i class="ti ti-chart-dots" style="color:#006064"></i></div>
+          <h3>Academic Analytics Report</h3>
+          <p>Comprehensive analytics across all metrics for institutional review.</p>
+          <div class="report-actions">
+            <button class="btn-secondary btn-sm" onclick="showToast('PDF generation started','info')"><i class="ti ti-file-type-pdf"></i> PDF</button>
+            <button class="btn-secondary btn-sm" onclick="showToast('Excel export started','info')"><i class="ti ti-table-export"></i> Excel</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-box">
+        <div class="card-box-header"><h3>Scheduled Reports</h3><button class="btn-primary btn-sm" style="margin-left:auto"><i class="ti ti-plus"></i> Schedule New</button></div>
+        <div style="overflow-x:auto">
+          <table class="main-table">
+            <thead><tr><th>Report Name</th><th>Frequency</th><th>Recipients</th><th>Next Run</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td>Monthly Attendance</td><td>Monthly</td><td>HODs, Admin</td><td>1 July 2025</td><td><span class="badge-pill badge-green">Active</span></td><td><div class="action-btns"><div class="action-btn edit"><i class="ti ti-edit"></i></div><div class="action-btn del"><i class="ti ti-trash"></i></div></div></td></tr>
+              <tr><td>Weekly Timetable Digest</td><td>Weekly (Mon)</td><td>All Faculty</td><td>16 June 2025</td><td><span class="badge-pill badge-green">Active</span></td><td><div class="action-btns"><div class="action-btn edit"><i class="ti ti-edit"></i></div><div class="action-btn del"><i class="ti ti-trash"></i></div></div></td></tr>
+              <tr><td>Room Utilization Summary</td><td>Fortnightly</td><td>Admin, Facilities</td><td>23 June 2025</td><td><span class="badge-pill badge-amber">Paused</span></td><td><div class="action-btns"><div class="action-btn edit"><i class="ti ti-edit"></i></div><div class="action-btn del"><i class="ti ti-trash"></i></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NOTIFICATIONS PAGE ── -->
+    <div class="page-content" id="pg-notifications">
+      <div class="page-header">
+        <div><h1>Notifications & Alerts</h1><p>Stay updated on scheduling events and system alerts</p></div>
+        <button class="btn-secondary" onclick="showToast('All notifications marked as read','success')"><i class="ti ti-checks"></i> Mark All Read</button>
+      </div>
+
+      <div class="card-box">
+        <div class="card-box-header"><h3>All Notifications</h3><span class="badge-pill badge-red">5 unread</span></div>
+        <div class="card-box-body" style="padding:12px">
+          <div id="full-notif-list">
+            <div class="notif-item unread" style="border-radius:12px;margin-bottom:6px">
+              <div class="notif-dot2" style="background:var(--danger)"></div>
+              <div style="flex:1">
+                <div class="notif-text"><strong>Timetable Conflict — CSE Sem 5</strong></div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:3px">Room B-102 double-booked on Wednesday 11:00 AM. Click to resolve.</div>
+              </div>
+              <div>
+                <div class="notif-time" style="margin-bottom:4px">just now</div>
+                <span class="badge-pill badge-red" style="font-size:10px">Conflict</span>
+              </div>
+            </div>
+            <div class="notif-item unread" style="border-radius:12px;margin-bottom:6px">
+              <div class="notif-dot2" style="background:var(--warning)"></div>
+              <div style="flex:1">
+                <div class="notif-text"><strong>Faculty Preference Submitted</strong></div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:3px">Dr. Ananya Sharma has submitted morning slot preferences for next semester.</div>
+              </div>
+              <div>
+                <div class="notif-time" style="margin-bottom:4px">5 min ago</div>
+                <span class="badge-pill badge-amber" style="font-size:10px">Preference</span>
+              </div>
+            </div>
+            <div class="notif-item unread" style="border-radius:12px;margin-bottom:6px">
+              <div class="notif-dot2" style="background:var(--info)"></div>
+              <div style="flex:1">
+                <div class="notif-text"><strong>Classroom Capacity Updated</strong></div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:3px">Smart Lab 2 capacity has been updated from 45 to 60 students.</div>
+              </div>
+              <div>
+                <div class="notif-time" style="margin-bottom:4px">20 min ago</div>
+                <span class="badge-pill badge-blue" style="font-size:10px">Update</span>
+              </div>
+            </div>
+            <div class="notif-item" style="border-radius:12px;margin-bottom:6px">
+              <div class="notif-dot2" style="background:var(--border)"></div>
+              <div style="flex:1">
+                <div class="notif-text">Timetable export for ECE Sem 3 is ready for download</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:3px">Auto-generated on schedule. Available in Reports section.</div>
+              </div>
+              <div>
+                <div class="notif-time" style="margin-bottom:4px">1 hr ago</div>
+                <span class="badge-pill badge-green" style="font-size:10px">Ready</span>
+              </div>
+            </div>
+            <div class="notif-item" style="border-radius:12px">
+              <div class="notif-dot2" style="background:var(--border)"></div>
+              <div style="flex:1">
+                <div class="notif-text">Monthly attendance report has been generated</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:3px">Available for download. Emailed to all HODs automatically.</div>
+              </div>
+              <div>
+                <div class="notif-time" style="margin-bottom:4px">2 hrs ago</div>
+                <span class="badge-pill badge-gray" style="font-size:10px">Report</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-box" style="margin-top:20px">
+        <div class="card-box-header"><h3>Email Notification Settings</h3></div>
+        <div class="card-box-body">
+          <div class="toggle-row"><div class="toggle-info"><div class="tl">Timetable conflict alerts</div><div class="ts">Notify admin immediately on conflict detection</div></div><label class="toggle-switch"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+          <div class="toggle-row"><div class="toggle-info"><div class="tl">Timetable change notifications</div><div class="ts">Notify students and faculty of schedule changes</div></div><label class="toggle-switch"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+          <div class="toggle-row"><div class="toggle-info"><div class="tl">Attendance summary emails</div><div class="ts">Weekly digest sent to faculty and HODs</div></div><label class="toggle-switch"><input type="checkbox"><div class="toggle-slider"></div></label></div>
+          <div class="toggle-row"><div class="toggle-info"><div class="tl">Faculty preference reminders</div><div class="ts">Remind faculty to submit preferences before semester</div></div><label class="toggle-switch"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── SETTINGS PAGE ── -->
+    <div class="page-content" id="pg-settings">
+      <div class="page-header"><div><h1>Settings</h1><p>Configure the EduSync platform</p></div></div>
+      <div class="settings-grid">
+        <div class="settings-nav">
+          <div class="settings-nav-item active"><i class="ti ti-building-estate"></i> Institution</div>
+          <div class="settings-nav-item"><i class="ti ti-calendar"></i> Academic Year</div>
+          <div class="settings-nav-item"><i class="ti ti-clock"></i> Time Slots</div>
+          <div class="settings-nav-item"><i class="ti ti-bell"></i> Notifications</div>
+          <div class="settings-nav-item"><i class="ti ti-palette"></i> Appearance</div>
+          <div class="settings-nav-item"><i class="ti ti-database"></i> Database</div>
+          <div class="settings-nav-item"><i class="ti ti-shield"></i> Security</div>
+          <div class="settings-nav-item"><i class="ti ti-users"></i> Admin Users</div>
+        </div>
+        <div class="settings-panel">
+          <div class="settings-section">
+            <h4>Institution Profile</h4>
+            <p>Basic information about your institution</p>
+            <div class="form-row">
+              <div class="form-group"><label>Institution Name</label><input class="form-control" value="Velammal Engineering College"></div>
+              <div class="form-group"><label>Short Name</label><input class="form-control" value="VEC"></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>University Affiliation</label><input class="form-control" value="Anna University"></div>
+              <div class="form-group"><label>Established Year</label><input class="form-control" value="1995"></div>
+            </div>
+            <div class="form-group"><label>Address</label><textarea class="form-control" rows="2">Chennai, Tamil Nadu, India — 600 066</textarea></div>
+            <button class="btn-primary" onclick="showToast('Institution profile saved','success')"><i class="ti ti-device-floppy"></i> Save Changes</button>
+          </div>
+          <div class="settings-section">
+            <h4>Timetable Configuration</h4>
+            <p>Default scheduling parameters</p>
+            <div class="toggle-row"><div class="toggle-info"><div class="tl">Auto-detect conflicts</div><div class="ts">Scan for clashes before timetable generation</div></div><label class="toggle-switch"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="tl">AI suggestions enabled</div><div class="ts">Use AI to optimize timetable generation</div></div><label class="toggle-switch"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="tl">Consider faculty preferences</div><div class="ts">Incorporate preferred time slots during scheduling</div></div><label class="toggle-switch"><input type="checkbox" checked><div class="toggle-slider"></div></label></div>
+            <div class="toggle-row"><div class="toggle-info"><div class="tl">Auto-assign smart rooms to lab sessions</div><div class="ts">Automatically recommend smart labs for practical classes</div></div><label class="toggle-switch"><input type="checkbox"><div class="toggle-slider"></div></label></div>
+          </div>
+          <div class="settings-section">
+            <h4>Academic Year Settings</h4>
+            <p>Current semester and academic calendar</p>
+            <div class="form-row">
+              <div class="form-group"><label>Academic Year</label><select class="form-select"><option>2024 - 2025</option><option>2025 - 2026</option></select></div>
+              <div class="form-group"><label>Current Semester</label><select class="form-select"><option>Odd Semester (Jul–Nov)</option><option>Even Semester (Jan–May)</option></select></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label>Semester Start Date</label><input type="date" class="form-control" value="2025-07-01"></div>
+              <div class="form-group"><label>Semester End Date</label><input type="date" class="form-control" value="2025-11-30"></div>
+            </div>
+            <button class="btn-primary" onclick="showToast('Academic settings saved','success')"><i class="ti ti-device-floppy"></i> Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODALS
+═══════════════════════════════════════════════ -->
+<!-- Add Faculty Modal -->
+<div class="modal-overlay" id="modal-add-faculty">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3><i class="ti ti-user-plus" style="color:var(--brand-blue);margin-right:8px"></i>Add New Faculty</h3>
+      <button class="modal-close" onclick="closeModal('modal-add-faculty')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row"><div class="form-group"><label>First Name</label><input class="form-control" placeholder="Dr. / Prof."></div><div class="form-group"><label>Last Name</label><input class="form-control" placeholder="Surname"></div></div>
+      <div class="form-group"><label>Email</label><input class="form-control" type="email" placeholder="faculty@institution.edu"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Department</label><select class="form-select"><option>CSE</option><option>ECE</option><option>IT</option><option>Mathematics</option><option>Physics</option></select></div>
+        <div class="form-group"><label>Designation</label><select class="form-select"><option>Professor</option><option>Assoc. Professor</option><option>Asst. Professor</option><option>Lecturer</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Max Weekly Hours</label><input class="form-control" type="number" value="20" min="1" max="40"></div>
+        <div class="form-group"><label>Specialization</label><input class="form-control" placeholder="e.g. Machine Learning"></div>
+      </div>
+      <div class="form-group"><label>Preferred Slots</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+          <label style="font-size:13px;display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" checked> Morning (8–12)</label>
+          <label style="font-size:13px;display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox"> Afternoon (12–4)</label>
+          <label style="font-size:13px;display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox"> Evening (4–6)</label>
+        </div>
+      </div>
+      <div class="form-group"><label>Subjects can teach</label><input class="form-control" placeholder="e.g. CS301, CS401, CS501 (comma separated)"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-add-faculty')">Cancel</button>
+      <button class="btn-primary" onclick="closeModal('modal-add-faculty');showToast('Faculty added successfully','success')"><i class="ti ti-check"></i> Add Faculty</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Classroom Modal -->
+<div class="modal-overlay" id="modal-add-room">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3><i class="ti ti-building-plus" style="color:var(--brand-blue);margin-right:8px"></i>Add New Classroom</h3>
+      <button class="modal-close" onclick="closeModal('modal-add-room')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Room Number</label><input class="form-control" placeholder="e.g. A-204"></div>
+        <div class="form-group"><label>Building/Block</label><select class="form-select"><option>Block A</option><option>Block B</option><option>Block C</option><option>Lab Block</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Room Type</label><select class="form-select"><option>Classroom</option><option>Lab</option><option>Smart Classroom</option><option>Seminar Hall</option><option>Auditorium</option></select></div>
+        <div class="form-group"><label>Seating Capacity</label><input class="form-control" type="number" placeholder="60"></div>
+      </div>
+      <div class="form-group"><label>Facilities</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px">
+          <label style="font-size:13px;display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" checked> Projector</label>
+          <label style="font-size:13px;display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox" checked> Air Conditioning</label>
+          <label style="font-size:13px;display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox"> Smart Board</label>
+          <label style="font-size:13px;display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox"> Computers (Lab)</label>
+          <label style="font-size:13px;display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox"> Wi-Fi</label>
+          <label style="font-size:13px;display:flex;gap:5px;align-items:center;cursor:pointer"><input type="checkbox"> Video Conferencing</label>
+        </div>
+      </div>
+      <div class="form-group"><label>Floor</label><select class="form-select"><option>Ground Floor</option><option>1st Floor</option><option>2nd Floor</option><option>3rd Floor</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-add-room')">Cancel</button>
+      <button class="btn-primary" onclick="closeModal('modal-add-room');showToast('Classroom added successfully','success')"><i class="ti ti-check"></i> Add Classroom</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Subject Modal -->
+<div class="modal-overlay" id="modal-add-subject">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3><i class="ti ti-book-plus" style="color:var(--brand-blue);margin-right:8px"></i>Add New Subject</h3>
+      <button class="modal-close" onclick="closeModal('modal-add-subject')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group"><label>Subject Code</label><input class="form-control" placeholder="e.g. CS501"></div>
+        <div class="form-group"><label>Credits</label><input class="form-control" type="number" value="4" min="1" max="6"></div>
+      </div>
+      <div class="form-group"><label>Subject Name</label><input class="form-control" placeholder="e.g. Machine Learning"></div>
+      <div class="form-row">
+        <div class="form-group"><label>Department</label><select class="form-select"><option>CSE</option><option>ECE</option><option>IT</option><option>Mathematics</option></select></div>
+        <div class="form-group"><label>Semester</label><select class="form-select"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Type</label><select class="form-select"><option>Theory</option><option>Lab/Practical</option><option>Tutorial</option><option>Elective</option></select></div>
+        <div class="form-group"><label>Hours/Week</label><input class="form-control" type="number" value="4"></div>
+      </div>
+      <div class="form-group"><label>Preferred Faculty</label><select class="form-select"><option>Auto-assign</option><option>Dr. Ramesh Kumar</option><option>Dr. Sunita Pillai</option><option>Prof. Ananya Sharma</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-add-subject')">Cancel</button>
+      <button class="btn-primary" onclick="closeModal('modal-add-subject');showToast('Subject added successfully','success')"><i class="ti ti-check"></i> Add Subject</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Department Modal -->
+<div class="modal-overlay" id="modal-add-dept">
+  <div class="modal-box" style="max-width:420px">
+    <div class="modal-header">
+      <h3>Add Department</h3>
+      <button class="modal-close" onclick="closeModal('modal-add-dept')"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Department Name</label><input class="form-control" placeholder="e.g. Computer Science Engineering"></div>
+      <div class="form-group"><label>Short Code</label><input class="form-control" placeholder="e.g. CSE"></div>
+      <div class="form-group"><label>HOD</label><select class="form-select"><option>Select Faculty</option><option>Dr. Ramesh Kumar</option><option>Dr. Sunita Pillai</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('modal-add-dept')">Cancel</button>
+      <button class="btn-primary" onclick="closeModal('modal-add-dept');showToast('Department added','success')">Add Department</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+const facultyData = [
+  {id:'F001', name:'Dr. Ramesh Kumar', dept:'CSE', desig:'Professor', subjects:['CS301','CS401','CS501'], hours:18, status:'active', initials:'RK', color:'#E3F2FD', tc:'#1565C0'},
+  {id:'F002', name:'Prof. Ananya Sharma', dept:'ECE', desig:'Assoc. Professor', subjects:['EC301','EC401'], hours:16, status:'active', initials:'AS', color:'#F3E5F5', tc:'#6A1B9A'},
+  {id:'F003', name:'Mr. Vijay Nair', dept:'Mathematics', desig:'Asst. Professor', subjects:['MA201','MA301'], hours:14, status:'active', initials:'VN', color:'#E8F5E9', tc:'#2E7D32'},
+  {id:'F004', name:'Dr. Sunita Pillai', dept:'IT', desig:'Professor', subjects:['IT301','IT401','IT501'], hours:20, status:'active', initials:'SP', color:'#FFF8E1', tc:'#E65100'},
+  {id:'F005', name:'Dr. Krishna Tiwari', dept:'Physics', desig:'Assoc. Professor', subjects:['PH101','PH201'], hours:12, status:'active', initials:'KT', color:'#E0F7FA', tc:'#006064'},
+  {id:'F006', name:'Ms. Deepa Menon', dept:'CSE', desig:'Asst. Professor', subjects:['CS201','CS301'], hours:16, status:'active', initials:'DM', color:'#FCE4EC', tc:'#880E4F'},
+  {id:'F007', name:'Dr. Arun Bose', dept:'ECE', desig:'Professor', subjects:['EC501','EC601'], hours:18, status:'leave', initials:'AB', color:'#F9FBE7', tc:'#558B2F'},
+  {id:'F008', name:'Prof. Leela Krishnan', dept:'IT', desig:'Asst. Professor', subjects:['IT201','IT301'], hours:14, status:'active', initials:'LK', color:'#EDE7F6', tc:'#4527A0'},
+];
+
+const roomData = [
+  {id:'R001', name:'A-101', block:'Block A', type:'Classroom', cap:60, facilities:['Projector','AC'], util:88, status:'available'},
+  {id:'R002', name:'A-204', block:'Block A', type:'Smart Classroom', cap:60, facilities:['Smart Board','AC','Wi-Fi'], util:95, status:'available'},
+  {id:'R003', name:'B-102', block:'Block B', type:'Classroom', cap:80, facilities:['Projector'], util:72, status:'available'},
+  {id:'R004', name:'Lab-1', block:'Lab Block', type:'Lab', cap:40, facilities:['Computers','AC','Projector'], util:90, status:'available'},
+  {id:'R005', name:'Lab-2', block:'Lab Block', type:'Lab', cap:60, facilities:['Computers','AC','Smart Board'], util:85, status:'maintenance'},
+  {id:'R006', name:'Seminar Hall', block:'Block C', type:'Seminar Hall', cap:200, facilities:['Projector','AC','Video Conf'], util:45, status:'available'},
+  {id:'R007', name:'B-Hall', block:'Block B', type:'Classroom', cap:120, facilities:['Projector','AC'], util:60, status:'available'},
+  {id:'R008', name:'Smart Lab 1', block:'Lab Block', type:'Smart Classroom', cap:60, facilities:['Smart Board','Computers','AC','Wi-Fi'], util:92, status:'available'},
+];
+
+const subjectData = [
+  {code:'CS301', name:'Algorithms', dept:'CSE', credits:4, type:'Theory', sem:5},
+  {code:'CS401', name:'Operating Systems', dept:'CSE', credits:4, type:'Theory', sem:5},
+  {code:'CS501', name:'Machine Learning', dept:'CSE', credits:4, type:'Theory', sem:7},
+  {code:'CS201', name:'Data Structures', dept:'CSE', credits:4, type:'Theory', sem:3},
+  {code:'CSLAB1', name:'DBMS Lab', dept:'CSE', credits:2, type:'Lab', sem:5},
+  {code:'EC301', name:'Digital Electronics', dept:'ECE', credits:4, type:'Theory', sem:5},
+  {code:'IT301', name:'Web Technologies', dept:'IT', credits:3, type:'Theory', sem:5},
+  {code:'MA201', name:'Engineering Mathematics', dept:'Mathematics', credits:4, type:'Theory', sem:3},
+  {code:'PH101', name:'Engineering Physics', dept:'Physics', credits:4, type:'Theory', sem:1},
+];
+
+const studentData = [
+  {roll:'CS2001', name:'Aarav Mehta', dept:'CSE', overall:94, today:'present'},
+  {roll:'CS2002', name:'Priya Rajan', dept:'CSE', overall:88, today:'present'},
+  {roll:'CS2003', name:'Karthik Suresh', dept:'CSE', overall:76, today:'absent'},
+  {roll:'CS2004', name:'Divya Nair', dept:'CSE', overall:92, today:'present'},
+  {roll:'CS2005', name:'Arun Sharma', dept:'CSE', overall:85, today:'late'},
+  {roll:'CS2006', name:'Lakshmi Pillai', dept:'CSE', overall:97, today:'present'},
+  {roll:'CS2007', name:'Vijay Kumar', dept:'CSE', overall:70, today:'absent'},
+  {roll:'CS2008', name:'Meera Krishnan', dept:'CSE', overall:91, today:'present'},
+];
+
+const depts = [
+  {name:'Computer Science Engg', code:'CSE', hod:'Dr. Ramesh Kumar', subjects:42, faculty:28, color:'#E3F2FD', tc:'#1565C0'},
+  {name:'Electronics & Comm.', code:'ECE', hod:'Prof. Ananya Sharma', subjects:38, faculty:24, color:'#F3E5F5', tc:'#6A1B9A'},
+  {name:'Information Technology', code:'IT', hod:'Dr. Sunita Pillai', subjects:35, faculty:20, color:'#E8F5E9', tc:'#2E7D32'},
+  {name:'Mathematics', code:'MATH', hod:'Mr. Vijay Nair', subjects:22, faculty:14, color:'#FFF8E1', tc:'#E65100'},
+  {name:'Physics', code:'PHY', hod:'Dr. Krishna Tiwari', subjects:18, faculty:10, color:'#E0F7FA', tc:'#006064'},
+];
+
+// Timetable data structure
+const ttData = {
+  days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+  slots: ['08:00–09:00','09:00–10:00','10:00–11:00','11:00–12:00','12:00–01:00','01:00–02:00','02:00–03:00','03:00–04:00','04:00–05:00'],
+  schedule: [
+    ['tt-blue|CS301: Algorithms|Dr. Ramesh|A-204','tt-purple|CS-Tutorial|Dr. Vijay|B-102','tt-blue|CS401: OS|Dr. Sunita|A-101','','break','','tt-blue|CS201: DSA|Dr. Deepa|A-204','',''],
+    ['tt-green|DBMS Lab|Dr. Ramesh|Lab-1','tt-blue|CS401: OS|Dr. Sunita|A-101','','tt-blue|CS301: Algorithms|Dr. Ramesh|A-204','break','tt-teal|ML Elective|Dr. Sunita|B-102','','tt-purple|Tutorial|Dr. Vijay|A-101',''],
+    ['','tt-blue|CS201: DSA|Dr. Deepa|A-204','tt-blue|CS401: OS|Dr. Sunita|A-101','tt-green|DBMS Lab|Dr. Ramesh|Lab-1','break','','tt-blue|CS301: Algorithms|Dr. Ramesh|A-204','',''],
+    ['tt-blue|CS301: Algorithms|Dr. Ramesh|A-204','','tt-blue|CS201: DSA|Dr. Deepa|A-101','','break','tt-green|Sys Lab|Dr. Sunita|Lab-2','','tt-amber|Seminar|Dr. Krishna|S-Hall',''],
+    ['tt-purple|Tutorial|Dr. Vijay|A-204','tt-blue|CS401: OS|Dr. Sunita|A-101','','tt-teal|ML Elective|Dr. Sunita|B-102','break','','tt-blue|CS201: DSA|Dr. Deepa|A-204','',''],
+  ]
+};
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+function showLanding() {
+  document.getElementById('page-landing').style.display='block';
+  document.getElementById('page-login').style.display='none';
+  document.getElementById('page-app').style.display='none';
+}
+function showLogin() {
+  document.getElementById('page-landing').style.display='none';
+  document.getElementById('page-login').style.display='flex';
+  document.getElementById('page-app').style.display='none';
+}
+function doLogin() {
+  const email = document.getElementById('login-email').value;
+  const pass = document.getElementById('login-pass').value;
+  if(!email || !pass) { showToast('Please enter credentials','error'); return; }
+  document.getElementById('page-login').style.display='none';
+  document.getElementById('page-app').style.display='block';
+  initApp();
+  showToast('Welcome back, Dr. Admin!','success');
+}
+function doLogout() {
+  document.getElementById('page-app').style.display='none';
+  document.getElementById('page-landing').style.display='block';
+  showToast('Logged out successfully','info');
+}
+function scrollFeatures() {
+  document.getElementById('features').scrollIntoView({behavior:'smooth'});
+}
+
+let chartsInit = false;
+function initApp() {
+  if(!chartsInit) {
+    renderFacultyTable();
+    renderRoomTable();
+    renderSubjectTable();
+    renderDeptList();
+    renderAttendanceTable();
+    renderTimetable();
+    renderUtilList();
+    setTimeout(initCharts, 300);
+    chartsInit = true;
+  }
+}
+
+function showPage(page, navEl) {
+  document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+  document.getElementById('pg-'+page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if(navEl) navEl.classList.add('active');
+  const titles = {dashboard:'Dashboard', faculty:'Faculty Management', classrooms:'Classroom Management', subjects:'Subjects & Courses', timetable:'Timetable Generator', attendance:'Attendance Management', analytics:'Analytics Dashboard', reports:'Reports & Exports', notifications:'Notifications', settings:'Settings'};
+  document.getElementById('topbar-title').textContent = titles[page] || page;
+  if(page === 'analytics') setTimeout(initAnalyticsCharts, 200);
+}
+
+// ═══════════════════════════════════════════════
+// TABLES
+// ═══════════════════════════════════════════════
+function renderFacultyTable() {
+  const tbody = document.getElementById('faculty-tbody');
+  tbody.innerHTML = facultyData.map(f => `
+    <tr>
+      <td><div class="avatar-cell"><div class="avatar-xs" style="background:${f.color};color:${f.tc}">${f.initials}</div><div><div class="avatar-name">${f.name}</div><div class="avatar-sub">${f.id}</div></div></div></td>
+      <td><span class="badge-pill badge-blue">${f.dept}</span></td>
+      <td>${f.desig}</td>
+      <td><span style="font-size:12px;color:var(--text-muted)">${f.subjects.join(', ')}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="progress-wrap" style="width:60px"><div class="progress-fill" style="width:${Math.round(f.hours/20*100)}%"></div></div>
+          <span style="font-size:12px;font-weight:600">${f.hours}h</span>
+        </div>
+      </td>
+      <td><span class="badge-pill ${f.status==='active'?'badge-green':'badge-amber'}">${f.status==='active'?'Active':'On Leave'}</span></td>
+      <td><div class="action-btns"><div class="action-btn edit" onclick="showToast('Edit faculty opened','info')"><i class="ti ti-edit"></i></div><div class="action-btn del" onclick="showToast('Faculty removed','error')"><i class="ti ti-trash"></i></div><div class="action-btn" onclick="showToast('Preference form sent','success')" title="Send preference form"><i class="ti ti-mail"></i></div></div></td>
+    </tr>`).join('');
+}
+
+function renderRoomTable() {
+  const tbody = document.getElementById('room-tbody');
+  const typeColors = {Classroom:'badge-blue', Lab:'badge-green', 'Smart Classroom':'badge-purple', 'Seminar Hall':'badge-teal'};
+  tbody.innerHTML = roomData.map(r => `
+    <tr>
+      <td><div class="avatar-cell"><div class="avatar-xs" style="background:#EFF6FF;color:#1565C0;border-radius:8px;font-size:11px">${r.name}</div><div><div class="avatar-name">${r.name}</div><div class="avatar-sub">Floor 1</div></div></div></td>
+      <td>${r.block}</td>
+      <td><span class="badge-pill ${typeColors[r.type]||'badge-gray'}">${r.type}</span></td>
+      <td><i class="ti ti-users" style="font-size:13px;color:var(--text-muted)"></i> ${r.cap}</td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap">${r.facilities.map(f=>`<span style="background:#F0F4FF;color:#1565C0;padding:2px 6px;border-radius:4px;font-size:11px">${f}</span>`).join('')}</div></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="util-bar" style="width:60px"><div class="util-bar-fill" style="width:${r.util}%;background:${r.util>85?'#C62828':r.util>70?'#F57F17':'#2E7D32'}"></div></div>
+          <span style="font-size:12px;font-weight:700;color:${r.util>85?'#C62828':r.util>70?'#F57F17':'#2E7D32'}">${r.util}%</span>
+        </div>
+      </td>
+      <td><span class="badge-pill ${r.status==='available'?'badge-green':'badge-amber'}">${r.status==='available'?'Available':'Maintenance'}</span></td>
+      <td><div class="action-btns"><div class="action-btn edit" onclick="showToast('Edit room opened','info')"><i class="ti ti-edit"></i></div><div class="action-btn del" onclick="showToast('Room removed','error')"><i class="ti ti-trash"></i></div></div></td>
+    </tr>`).join('');
+}
+
+function renderSubjectTable() {
+  const tbody = document.getElementById('subj-tbody');
+  const typeColors = {Theory:'badge-blue', Lab:'badge-green', Tutorial:'badge-purple', Elective:'badge-amber'};
+  tbody.innerHTML = subjectData.map(s => `
+    <tr>
+      <td><span style="font-family:monospace;background:#F0F4FF;color:#1565C0;padding:2px 8px;border-radius:5px;font-size:12px">${s.code}</span></td>
+      <td><div class="avatar-name">${s.name}</div></td>
+      <td><span class="badge-pill badge-blue">${s.dept}</span></td>
+      <td><span class="badge-pill badge-gray">${s.credits} cr</span></td>
+      <td><span class="badge-pill ${typeColors[s.type]||'badge-gray'}">${s.type}</span></td>
+      <td><div class="action-btns"><div class="action-btn edit" onclick="showToast('Edit subject','info')"><i class="ti ti-edit"></i></div><div class="action-btn del" onclick="showToast('Subject removed','error')"><i class="ti ti-trash"></i></div></div></td>
+    </tr>`).join('');
+}
+
+function renderDeptList() {
+  const el = document.getElementById('dept-list');
+  el.innerHTML = depts.map(d => `
+    <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s" onmouseenter="this.style.background='#F8FAFE'" onmouseleave="this.style.background=''">
+      <div style="width:36px;height:36px;border-radius:10px;background:${d.color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:${d.tc}">${d.code}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:var(--text-main);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${d.name}</div>
+        <div style="font-size:11.5px;color:var(--text-muted)">${d.faculty} faculty · ${d.subjects} subjects</div>
+      </div>
+    </div>`).join('');
+}
+
+function renderAttendanceTable() {
+  const tbody = document.getElementById('att-tbody');
+  const statusClass = {present:'att-present', absent:'att-absent', late:'att-late'};
+  const statusLabel = {present:'Present', absent:'Absent', late:'Late'};
+  tbody.innerHTML = studentData.map(s => `
+    <tr>
+      <td><input type="checkbox" ${s.today==='present'?'checked':''}></td>
+      <td><span style="font-family:monospace;font-weight:600;font-size:12px">${s.roll}</span></td>
+      <td><div class="avatar-name">${s.name}</div></td>
+      <td><span class="badge-pill badge-blue">${s.dept}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="progress-wrap" style="width:50px"><div class="progress-fill" style="width:${s.overall}%;background:${s.overall>=85?'#2E7D32':s.overall>=75?'#F57F17':'#C62828'}"></div></div>
+          <span style="font-size:12px;font-weight:700;color:${s.overall>=85?'#2E7D32':s.overall>=75?'#F57F17':'#C62828'}">${s.overall}%</span>
+        </div>
+      </td>
+      <td>
+        <select style="background:none;border:none;font-size:12px;font-weight:600;cursor:pointer;outline:none;color:inherit" onchange="handleAttChange(this)">
+          <option value="present" ${s.today==='present'?'selected':''}>Present</option>
+          <option value="absent" ${s.today==='absent'?'selected':''}>Absent</option>
+          <option value="late" ${s.today==='late'?'selected':''}>Late</option>
+        </select>
+      </td>
+    </tr>`).join('');
+}
+
+function handleAttChange(sel) { showToast('Attendance updated for student','success'); }
+function markAllPresent() {
+  document.querySelectorAll('#att-table tbody select').forEach(s => s.value='present');
+  document.querySelectorAll('#att-table tbody input[type=checkbox]').forEach(c => c.checked=true);
+  showToast('All students marked present','success');
+}
+function toggleAll(cb) {
+  document.querySelectorAll('#att-table tbody input[type=checkbox]').forEach(c => c.checked=cb.checked);
+}
+function selectAttClass(el) {
+  document.querySelectorAll('.att-class-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function renderUtilList() {
+  const el = document.getElementById('util-list');
+  const rooms = [
+    {name:'A-204', pct:95, color:'#C62828'}, {name:'Smart Lab 1', pct:92, color:'#C62828'},
+    {name:'Lab-1', pct:90, color:'#F57F17'}, {name:'A-101', pct:88, color:'#F57F17'},
+    {name:'Lab-2', pct:85, color:'#F57F17'}, {name:'B-102', pct:72, color:'#2E7D32'},
+    {name:'B-Hall', pct:60, color:'#2E7D32'}, {name:'Seminar Hall', pct:45, color:'#2E7D32'},
+  ];
+  el.innerHTML = rooms.map(r => `
+    <div class="util-row">
+      <div class="util-name">${r.name}</div>
+      <div class="util-bar"><div class="util-bar-fill" style="width:${r.pct}%;background:${r.color}"></div></div>
+      <div class="util-pct" style="color:${r.color}">${r.pct}%</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// TIMETABLE
+// ═══════════════════════════════════════════════
+function renderTimetable() {
+  const table = document.getElementById('main-timetable');
+  let html = '<thead><tr><th style="min-width:90px">Time</th>';
+  ttData.days.forEach(d => html += `<th>${d}</th>`);
+  html += '</tr></thead><tbody>';
+  ttData.slots.forEach((slot, si) => {
+    const isBreak = si === 4;
+    html += '<tr>';
+    html += `<td class="tt-time${isBreak?' break-cell':''}">${isBreak?'Lunch Break':slot}</td>`;
+    ttData.days.forEach((_, di) => {
+      const cell = ttData.schedule[di][si];
+      if(isBreak) { html += '<td class="break-cell" colspan="1" style="background:#FAFAFA;font-size:11px;color:#9E9E9E;text-align:center;vertical-align:middle">— Lunch —</td>'; return; }
+      if(!cell) { html += '<td><div class="tt-slot empty"></div></td>'; return; }
+      const parts = cell.split('|');
+      const cls = parts[0], subj = parts[1], faculty = parts[2], room = parts[3];
+      html += `<td><div class="tt-slot ${cls}"><div class="subj">${subj}</div><div class="faculty"><i class="ti ti-user" style="font-size:10px"></i> ${faculty}</div><div class="room"><i class="ti ti-building" style="font-size:10px"></i> ${room}</div></div></td>`;
+    });
+    html += '</tr>';
+  });
+  html += '</tbody>';
+  table.innerHTML = html;
+}
+
+function generateTimetable() {
+  showToast('Generating AI-optimized timetable…','info');
+  setTimeout(() => showToast('Timetable generated! 0 conflicts detected.','success'), 1800);
+}
+
+// ═══════════════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════════════
+let chartsCreated = {};
+function initCharts() {
+  // Dashboard: Utilization
+  if(!chartsCreated.util) {
+    chartsCreated.util = new Chart(document.getElementById('utilizationChart'), {
+      type: 'bar',
+      data: {
+        labels: ['CSE','ECE','IT','Mech','Civil','Math'],
+        datasets: [{
+          label: 'Utilization %',
+          data: [88, 76, 82, 65, 58, 71],
+          backgroundColor: ['#1976D2','#8E24AA','#43A047','#FB8C00','#00897B','#E53935'],
+          borderRadius: 6,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { beginAtZero: true, max: 100, grid: { color: '#F0F4FF' }, ticks: { callback: v => v+'%', font: { size: 11 } } },
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+      }
+    });
+  }
+  // Dashboard: Attendance Trend
+  if(!chartsCreated.att) {
+    chartsCreated.att = new Chart(document.getElementById('attendanceTrendChart'), {
+      type: 'line',
+      data: {
+        labels: ['1','3','5','7','9','11','13','15','17','19','21','23','25'],
+        datasets: [{
+          label: 'Attendance %',
+          data: [91,89,93,88,94,92,95,91,96,93,94,92,94],
+          borderColor: '#1976D2', backgroundColor: 'rgba(25,118,210,0.07)',
+          borderWidth: 2.5, fill: true, tension: 0.4,
+          pointBackgroundColor: '#1976D2', pointRadius: 3,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: { min: 80, max: 100, grid: { color: '#F0F4FF' }, ticks: { callback: v => v+'%', font: { size: 11 } } },
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+        }
+      }
+    });
+  }
+}
+
+function initAnalyticsCharts() {
+  if(chartsCreated.roomType) return;
+  chartsCreated.roomType = new Chart(document.getElementById('roomTypeChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Classrooms 57%','Labs 29%','Smart Rooms 14%'],
+      datasets: [{
+        data: [57,29,14],
+        backgroundColor: ['#1976D2','#43A047','#8E24AA'],
+        borderWidth: 0,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, padding: 12 } } },
+      cutout: '65%'
+    }
+  });
+
+  chartsCreated.deptAtt = new Chart(document.getElementById('deptAttChart'), {
+    type: 'bar',
+    data: {
+      labels: ['CSE','ECE','IT','Mech','Math','Physics'],
+      datasets: [{
+        label: 'Attendance %',
+        data: [94, 89, 91, 86, 92, 88],
+        backgroundColor: '#00ACC1', borderRadius: 5, borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { min: 80, max: 100, ticks: { callback: v => v+'%', font: { size: 11 } }, grid: { color: '#F0F4FF' } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  chartsCreated.weekLoad = new Chart(document.getElementById('weekLoadChart'), {
+    type: 'bar',
+    data: {
+      labels: ['Mon','Tue','Wed','Thu','Fri'],
+      datasets: [{
+        label: 'Classes',
+        data: [42, 38, 45, 40, 32],
+        backgroundColor: ['#1976D2','#1976D2','#8E24AA','#1976D2','#43A047'],
+        borderRadius: 6, borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, grid: { color: '#F0F4FF' }, ticks: { font: { size: 11 } } },
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+
+  chartsCreated.facultyLoad = new Chart(document.getElementById('facultyLoadChart'), {
+    type: 'bar',
+    data: {
+      labels: ['CSE','ECE','IT','Mech','Math','Physics','Civil'],
+      datasets: [{
+        label: 'Avg hrs/week',
+        data: [17, 15, 18, 14, 13, 12, 11],
+        backgroundColor: '#1976D2', borderRadius: 4, borderSkipped: false,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { beginAtZero: true, max: 22, ticks: { font: { size: 11 } }, grid: { color: '#F0F4FF' } },
+        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+// UTILITY
+// ═══════════════════════════════════════════════
+function filterTable(tableId, query) {
+  const table = document.getElementById(tableId);
+  if(!table) return;
+  const rows = table.querySelectorAll('tbody tr');
+  const q = query.toLowerCase();
+  rows.forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+function switchTab(btn, tabId) {
+  btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+// Close modal on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if(e.target === this) this.classList.remove('open');
+  });
+});
+
+function showToast(msg, type='info') {
+  const icons = {success:'ti-circle-check', error:'ti-circle-x', warning:'ti-alert-triangle', info:'ti-info-circle'};
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = `toast ${type}`;
+  toast.innerHTML = `<i class="ti ${icons[type]}"></i><div class="toast-msg">${msg}</div><i class="ti ti-x" style="color:var(--text-muted);cursor:pointer;font-size:16px" onclick="this.parentElement.remove()"></i>`;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 4000);
+}
+
+// Keyboard: Escape closes modals
+document.addEventListener('keydown', e => {
+  if(e.key === 'Escape') document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+});
+</script>
+</body>
+</html>
